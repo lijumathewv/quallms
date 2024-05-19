@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/LMS
+/Qual_LMS/.vs
+/Qual_LMS/QualLMS.API/bin/Debug/net8.0
+/Qual_LMS/QualLMS.API/obj
+/Qual_LMS/QualLMS.Domain/bin/Debug/net8.0
+/Qual_LMS/QualLMS.Domain/obj
+/Qual_LMS/QualLMS.WebApp/bin/Debug/net8.0
+/Qual_LMS/QualLMS.WebApp/obj
