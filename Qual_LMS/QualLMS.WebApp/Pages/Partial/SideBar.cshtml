@@ -1,0 +1,135 @@
+﻿@page
+@using QualLMS.Domain.Models
+@using Microsoft.AspNetCore.Http
+@using System.Text.Json
+@inject IHttpContextAccessor _httpContext
+
+@model QualLMS.WebApp.Pages.Partial.SideBarModel
+
+@{
+    LoginProperties login = new LoginProperties();
+
+    if (_httpContext.HttpContext!.Session.GetString("LoginProperties") != null)
+    {
+        string json = _httpContext.HttpContext.Session.GetString("LoginProperties")!;
+        login = JsonSerializer.Deserialize<LoginProperties>(json)!;
+    }
+}
+
+<!-- Sidebar Holder -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h1>
+            <a href="/">Prospire</a>
+        </h1>
+        <span>LMS</span>
+    </div>
+    <div class="profile-bg"></div>
+    <ul class="list-unstyled components">
+        @switch ((Roles)login.Role)
+        {
+            case Roles.Students:
+            case Roles.Teachers:
+            case Roles.Parents:
+                {
+                    <li class="active">
+                        <a href="/">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/fees">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+            case Roles.Admin:
+                {
+                    <li class="active">
+                        <a href="/">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Users">
+                            <i class="fas fa-laptop"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/batch">
+                            <i class="fas fa-chart-pie"></i>
+                            Batch
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/fees">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+            case Roles.SuperAdmin:
+                {
+                    <li class="active">
+                        <a href="/">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Organization">
+                            <i class="fas fa-building"></i>
+                            Organization
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Users">
+                            <i class="fas fa-laptop"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/batch">
+                            <i class="fas fa-chart-pie"></i>
+                            Batch
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/fees">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+        }
+    </ul>
+</nav>
+
+
+@{
+}

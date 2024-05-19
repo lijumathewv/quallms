@@ -1,0 +1,10 @@
+﻿@page
+@model QualLMS.WebApp.Pages.Partial.TopBarModel
+@using QualLMS.Domain.Models
+
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewBag.Test = "";
+    LoginProperties properties = Model.LoginProperties!;
+}

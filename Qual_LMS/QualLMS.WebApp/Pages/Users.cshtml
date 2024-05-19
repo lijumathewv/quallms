@@ -1,0 +1,91 @@
+﻿@page
+@model QualLMS.WebApp.Pages.UsersModel
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor _httpContext
+@{
+
+    string MainURL = string.Empty;
+
+    if (_httpContext.HttpContext!.Session.GetInt32("IsLogged") == null)
+    {
+        Response.Redirect("/login", true);
+    }
+    else
+    {
+        MainURL = Model.BaseURL + "account/all";
+    }
+
+}
+
+<!-- main-heading -->
+<h2 class="main-title-w3layouts mb-2 text-center">Attendance</h2>
+<!--// main-heading -->
+
+<section id="carouselSection" class="carousels-section">
+    <div class="outer-w3-agile mt-3">
+        <div class="w3_agile_map">
+            <div class="d-sm-flex justify-content-between map-buttons">
+                <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/adduser'">Add Organization</button>&nbsp;&nbsp;
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="outer-w3-agile mt-12">
+    <table id="dg" title="Our Organization" class="easyui-datagrid" style="width:100%;height:300px"
+           data-options="singleSelect:true,collapsible:true,pagination:true">
+        <thead>
+            <tr>
+                <th data-options="field:'serial', width:'4%',formatter:serialFormatter">#</th>
+                <th data-options="field:'fullName', width:'15%',formatter:wrapFormatter">Full Name</th>
+                <th data-options="field:'emailId', width:'16%',formatter:wrapFormatter">Email Id</th>
+                <th data-options="field:'phoneNumber', width:'10%',formatter:wrapFormatter">Phone #</th>
+                <th data-options="field:'address', width:'30%',formatter:wrapFormatter">Address</th>
+                <th data-options="field:'domainName', width:'10%',formatter:wrapFormatter">Domain</th>
+                <th data-options="field:'officeGeoLocation', width:'5%',align:'center',formatter:formatOrgLocation">Location</th>
+                <th data-options="field:'users.length', width:'5%'">Users</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+@section Scripts {
+    <style>
+        .datagrid-cell-wrap {
+            white-space: normal !important;
+            word-wrap: break-word;
+            word-break: break-all;
+            height: auto;
+            padding: 5px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+
+    <!--Script to get the Attendance Data-->
+    <script>
+        $.ajax({
+            type: 'POST',
+            url: '@MainURL',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response.returnData[0].users.length);
+
+                $('#dg').datagrid('loadData', response.returnData);
+            },
+            onLoadSuccess: function () {
+                $('#dg').datagrid('resize');
+            },
+            error: function (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+
+        function wrapFormatter(value, row, index) {
+            return '<div class="datagrid-cell-wrap">' + value + '</div>';
+        }
+    </script>
+}

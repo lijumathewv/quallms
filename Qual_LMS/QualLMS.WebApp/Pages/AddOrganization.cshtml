@@ -1,0 +1,77 @@
+﻿@page
+@model QualLMS.WebApp.Pages.AddOrganizationModel
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor _httpContext
+@{
+
+    string MainURL = string.Empty;
+
+    if (_httpContext.HttpContext!.Session.GetInt32("IsLogged") == null)
+    {
+        Response.Redirect("/login", true);
+    }
+    else
+    {
+        MainURL = Model.BaseURL + "Organization/all";
+    }
+
+}
+
+<!-- main-heading -->
+<h2 class="main-title-w3layouts mb-2 text-center">Add Organization</h2>
+<!--// main-heading -->
+<!-- Forms content -->
+<section class="forms-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="outer-w3-agile col-xl mt-3">
+                <form method="post">
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Full Name</label>
+                        <input type="text" class="form-control" name="FullName" placeholder="Full name is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Email address</label>
+                        <input type="email" class="form-control" name="EmailId" placeholder="name@example.com" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Phone Number</label>
+                        <input type="tel" class="form-control" name="PhoneNumber" placeholder="PhoneNumber is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Address</label>
+                        <input type="text" class="form-control" name="Address" placeholder="Address is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Domain Name</label>
+                        <input type="text" class="form-control" name="DomainName" placeholder="DomainName is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Geo Location</label>
+                        <input type="text" class="form-control" name="OfficeGeoLocation" placeholder="Geo Location is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" asp-page-handler="Submit">Sign in</button>
+                    </div>
+                    @if (Model.IsErrorMessage)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-danger" role="alert">
+                                @Model.ErrorMessage
+                            </div>
+                        </div>
+                    }
+                    @if (Model.IsSuccessMessage)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-success" role="alert">
+                                @Model.SuccessMessage
+                            </div>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
