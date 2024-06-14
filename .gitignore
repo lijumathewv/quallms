@@ -10,3 +10,14 @@
 /Qual_LMS/QualLMS.Domain/obj
 /Qual_LMS/QualLMS.WebApp/bin/Debug/net8.0
 /Qual_LMS/QualLMS.WebApp/obj
+/Qual_LMS/QualLMS.API/bin/Release/net8.0
+/Qual_LMS/QualLMS.Domain/bin
+/Qual_LMS/QualLMS.API/Properties/PublishProfiles
+/Qual_LMS/QualLMS.ServerApp/bin/Debug/net7.0
+/Qual_LMS/QualLMS.ServerApp/obj
+/Qual_LMS/QualLMS.Web
+/Qual_LMS/QualLMS.WebApp/bin/Release/net8.0
+/Qual_LMS/QualLMS.ServerApp
+/Qual_LMS/QualLMS.WebAppMvc/bin
+/Qual_LMS/QualLMS.WebAppMvc/obj
+/Qual_LMS/QualLMS.WebAppMvc/Properties/PublishProfiles
