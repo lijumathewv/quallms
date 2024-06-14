@@ -10,7 +10,7 @@ namespace QualLMS.Domain.Models
         [Required]
         [StringLength(450)]
         public string AppUserId { get; set; } = string.Empty;
-        public virtual AppUser AppUser { get; set; } = null!;
+        public virtual User AppUser { get; set; } = null!;
 
         [Required]
         public string Address { get; set; } = string.Empty;

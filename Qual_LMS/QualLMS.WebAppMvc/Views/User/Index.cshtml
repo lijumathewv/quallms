@@ -1,0 +1,93 @@
+﻿@using QualLMS.Domain.Models
+@using QualvationLibrary
+@inject CustomLogger logger;
+@{
+    var login = logger.LoginDetails;
+    string MainURL = logger.BaseURL + "account/all?Id=" + login.OrganizationId.ToString();
+
+    Roles CurrentRole = Roles.None;
+    Enum.TryParse<Roles>(logger.LoginDetails.Role, out CurrentRole);
+}
+
+<!-- main-heading -->
+<h2 class="main-title-w3layouts mb-2 text-center">Attendance</h2>
+<!--// main-heading -->
+
+<section id="carouselSection" class="carousels-section">
+    <div class="outer-w3-agile mt-3">
+        <div class="w3_agile_map">
+            <div class="d-sm-flex justify-content-between map-buttons">
+                @{
+                    if (CurrentRole == Roles.Admin)
+                    {
+                        <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/user/add?RId=@Convert.ToInt16(Roles.Students)'">Add Student</button>
+                        <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/user/add?RId=@Convert.ToInt16(Roles.Parents)'">Add Parent</button>
+                    }
+                    else
+                    {
+                        <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/user/add?RId=@Convert.ToInt16(Roles.Admin)'">Add Admin</button>
+                        <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/user/add?RId=@Convert.ToInt16(Roles.Students)'">Add Student</button>
+                        <button id="checkin-btn" class="w3ls_button bg-success" onclick="location.href='/user/add?RId=@Convert.ToInt16(Roles.Parents)'">Add Parent</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="outer-w3-agile mt-12">
+    <table id="dg" title="All Users" class="easyui-datagrid" style="width:100%;height:300px"
+           data-options="singleSelect:true,collapsible:true,pagination:true">
+        <thead>
+            <tr>
+                <th data-options="field:'serial', width:'4%',formatter:serialFormatter">#</th>
+                <th data-options="field:'role', width:'10%',formatter:wrapFormatter">Role</th>
+                <th data-options="field:'fullName', width:'15%',formatter:wrapFormatter">Full Name</th>
+                <th data-options="field:'emailId', width:'20%',formatter:wrapFormatter">Email Id</th>
+                <th data-options="field:'phoneNumber', width:'10%',formatter:wrapFormatter">Phone #</th>
+                <th data-options="field:'parentName', width:'10%',formatter:wrapFormatter">Parent Name #</th>
+                <th data-options="field:'parentNumber', width:'10%',formatter:wrapFormatter">Parent Phone #</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+@section Scripts {
+    <style>
+        .datagrid-cell-wrap {
+            white-space: normal !important;
+            word-wrap: break-word;
+            word-break: break-all;
+            height: auto;
+            padding: 5px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+
+    <!--Script to get the Attendance Data-->
+    <script>
+        $.ajax({
+            type: 'POST',
+            url: '@MainURL',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response.returnData);
+
+                $('#dg').datagrid('loadData', response.returnData);
+            },
+            onLoadSuccess: function () {
+                $('#dg').datagrid('resize');
+            },
+            error: function (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+
+        function wrapFormatter(value, row, index) {
+            return '<div class="datagrid-cell-wrap">' + value + '</div>';
+        }
+    </script>
+}

@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualLMS.API", "QualLMS.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualLMS.Domain", "QualLMS.Domain\QualLMS.Domain.csproj", "{6182B74C-4207-458F-900A-26C97F34D83E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualLMS.WebApp", "QualLMS.WebApp\QualLMS.WebApp.csproj", "{F29591C3-1B97-4D83-9E6E-2EAA8EE0943F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualLMS.WebAppMvc", "QualLMS.WebAppMvc\QualLMS.WebAppMvc.csproj", "{A8DE9261-B28B-4616-8256-B2FD36453A26}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualvationLibrary", "..\..\QualvationLibrary\QualvationLibrary.csproj", "{021AB31A-54F8-427F-85CE-49B78F8617A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,14 @@ Global
 		{6182B74C-4207-458F-900A-26C97F34D83E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6182B74C-4207-458F-900A-26C97F34D83E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6182B74C-4207-458F-900A-26C97F34D83E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F29591C3-1B97-4D83-9E6E-2EAA8EE0943F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F29591C3-1B97-4D83-9E6E-2EAA8EE0943F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F29591C3-1B97-4D83-9E6E-2EAA8EE0943F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F29591C3-1B97-4D83-9E6E-2EAA8EE0943F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8DE9261-B28B-4616-8256-B2FD36453A26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8DE9261-B28B-4616-8256-B2FD36453A26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8DE9261-B28B-4616-8256-B2FD36453A26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8DE9261-B28B-4616-8256-B2FD36453A26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

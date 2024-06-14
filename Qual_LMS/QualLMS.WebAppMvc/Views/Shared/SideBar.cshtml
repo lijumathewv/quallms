@@ -1,0 +1,123 @@
+﻿@using QualLMS.Domain.Models
+@using QualvationLibrary
+
+@inject CustomLogger logger
+
+@{
+    Roles Role = Roles.None;
+    Enum.TryParse<Roles>(logger.LoginDetails.Role, out Role);
+}
+
+<!-- Sidebar Holder -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h1>
+            <a href="/">Prospire</a>
+        </h1>
+        <span>LMS</span>
+    </div>
+    <div class="profile-bg"></div>
+    <ul class="list-unstyled components">
+        @switch ((Roles)Role)
+        {
+            case Roles.Students:
+            case Roles.Teachers:
+            case Roles.Parents:
+                {
+                    <li class="active">
+                        <a href="/home">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home/Unauthorized">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+            case Roles.Admin:
+                {
+                    <li class="active">
+                        <a href="/home">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/User">
+                            <i class="fas fa-laptop"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home/Unauthorized">
+                            <i class="fas fa-chart-pie"></i>
+                            Batch
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home/Unauthorized">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+            case Roles.SuperAdmin:
+                {
+                    <li class="active">
+                        <a href="/home">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Organization">
+                            <i class="fas fa-building"></i>
+                            Organization
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/User">
+                            <i class="fas fa-laptop"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home/Unauthorized">
+                            <i class="fas fa-chart-pie"></i>
+                            Batch
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/attendance">
+                            <i class="fas fa-th"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home/Unauthorized">
+                            <i class="far fa-window-restore"></i>
+                            Fees
+                        </a>
+                    </li>
+                    break;
+                }
+        }
+    </ul>
+</nav>

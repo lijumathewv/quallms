@@ -31,6 +31,13 @@ namespace QualLMS.API.Controllers
             return Ok(response);
         }
 
+        [HttpPost("list-allorg-attendance")]
+        public async Task<IActionResult> ListAllOrganizationAttendance(string Id)
+        {
+            var response = attendance.GetOrganizationAttendance(new Guid(Id));
+            return Ok(response);
+        }
+
         [HttpPost("todays-attendance")]
         public async Task<IActionResult> MyAttendanceForToday(string Id)
         {

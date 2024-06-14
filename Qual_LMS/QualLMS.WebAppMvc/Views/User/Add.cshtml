@@ -1,0 +1,135 @@
+﻿@using Microsoft.AspNetCore.Http
+@using QualLMS.Domain.APIModels
+@using QualLMS.Domain.Models
+@using System.Text.Json
+@using QualvationLibrary
+
+@model UserRegister
+
+@inject CustomLogger logger
+@{
+    Roles LoginRole = Roles.None;
+    Enum.TryParse<Roles>(logger.LoginDetails.Role, out LoginRole);
+    int RId = Convert.ToInt32(ViewBag.Role);
+
+    Roles role = (Roles)RId;
+
+    string MainURL = logger.BaseURL + "Organization/all";
+}
+<!-- main-heading -->
+<h2 class="main-title-w3layouts mb-2 text-center">Add User</h2>
+<!--// main-heading -->
+<!-- Forms content -->
+<section class="forms-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="outer-w3-agile col-xl mt-3">
+                <form method="post">
+                    @{
+                        if (LoginRole == Roles.SuperAdmin)
+                        {
+                            <div class="form-group">
+                                <label for="OrgId">Organization</label>
+                                <input id="OrgId" class="form-control" name="OrganizationId" required="" style="width:100%;">
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" id="OrganizationId" name="OrganizationId" value="@logger.LoginDetails!.OrganizationId" />
+                        }
+                    }
+                    <div class="form-group">
+                        <label for="FullName">Full Name</label>
+                        <input id="FullName" type="text" class="form-control" name="FullName" placeholder="Full name is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="EmailId">Email address</label>
+                        <input id="EmailId" type="email" class="form-control" name="EmailId" placeholder="name@example.com" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="PhoneNumber">Phone#</label>
+                        <input id="PhoneNumber" type="tel" class="form-control" name="PhoneNumber" placeholder="PhoneNumber is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">Password</label>
+                        <input id="Password" type="password" class="form-control" name="Password" placeholder="Password is mandatory" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="ConfirmPassword">Password</label>
+                        <input id="ConfirmPassword" type="password" class="form-control" name="ConfirmPassword" placeholder="Confirm Password is mandatory" required="">
+                    </div>
+                    @{
+                        if (role == Roles.Students)
+                        {
+                            <div class="form-group">
+                                <label for="ParentName">Parent Name</label>
+                                <input id="ParentName" type="text" class="form-control" name="ParentName" placeholder="Parent name is mandatory" required="">
+                            </div>
+                            <div class="form-group">
+                                <label for="ParentNumber">Parent Phone #</label>
+                                <input id="ParentNumber" type="text" class="form-control" name="ParentNumber" placeholder="Parent Phone is mandatory" required="">
+                            </div>
+                        }
+                    }
+                    <div class="form-group">
+                        <input type="hidden" id="RoleId" name="RoleId" value="@RId" />
+                        <button type="submit" class="btn btn-primary" asp-page-handler="Submit">Add</button>
+                    </div>
+                    @if (logger.IsError)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-danger" role="alert">
+                                @Html.Raw(logger.ErrorMessage.Replace("\r\n", "<br />"))
+                            </div>
+                        </div>
+                    }
+                    @if (logger.IsSuccess)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-success" role="alert">
+                                @logger.SuccessMessage
+                            </div>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts
+{
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+
+    @{
+        switch (LoginRole)
+        {
+            case Roles.SuperAdmin:
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        var rid = '@RId';
+
+                        $('#OrgId').combobox({
+                            url: '@MainURL',
+                            multiple: false,
+                            editable: false,
+                            valueField: 'id',
+                            textField: 'fullName',
+                            onSelect: function (record) {
+                                console.log('Selected:', record);
+                                $('#FullName').val(record.fullName);
+                                $('#EmailId').val(record.emailId);
+                                $('#PhoneNumber').val(record.phoneNumber);
+                            },
+                            loadFilter: function (data) {
+                                return data.returnData;
+                            }
+                        });
+                    });
+                </script>
+                break;
+        }
+    }
+}

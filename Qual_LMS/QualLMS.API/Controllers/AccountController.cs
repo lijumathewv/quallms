@@ -2,6 +2,7 @@
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
+using QualvationLibrary;
 
 namespace QualLMS.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace QualLMS.API.Controllers
         [HttpPost("all")]
         public async Task<IActionResult> AllUsersFromOrgnization(Guid Id)
         {
-            var response = userAccount.AllUsers(Id);
+            var response = await userAccount.AllUsers(Id);
             return Ok(response);
         }
     }

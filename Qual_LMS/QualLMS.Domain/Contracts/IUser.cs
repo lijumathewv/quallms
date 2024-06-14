@@ -1,5 +1,6 @@
 ﻿using QualLMS.Domain.APIModels;
-using static QualLMS.Domain.Models.ServiceResponses;
+using QualvationLibrary;
+using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.Domain.Contracts
 {

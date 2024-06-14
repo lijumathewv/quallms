@@ -19,6 +19,6 @@ namespace QualLMS.Domain.Models
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        public virtual ICollection<AppUser> AppUser { get; set; } = new List<AppUser>();
+        public virtual ICollection<User> AppUser { get; set; } = new List<User>();
     }
 }

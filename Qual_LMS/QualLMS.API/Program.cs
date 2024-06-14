@@ -6,6 +6,7 @@ using QualLMS.API.Data;
 using QualLMS.API.Repositories;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
+using QualvationLibrary;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(
     opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection") ??
     throw new InvalidOperationException("Unable to find the database")));
-builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<DataContext>()
+builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DataContext>()
     .AddSignInManager()
     .AddRoles<IdentityRole>()
     .AddApiEndpoints();
@@ -59,7 +60,7 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("https://localhost:7220")
+        policy.WithOrigins(builder.Configuration.GetSection("LMSConfig:CORSOrigins").Get<string[]>())
         .AllowAnyHeader().AllowAnyMethod();
     });
 });
@@ -68,15 +69,19 @@ builder.Services.AddScoped<IUserAccount, AccountRepository>();
 builder.Services.AddScoped<IAttendance, AttendanceRepository>();
 builder.Services.AddScoped<IOrganization, OrganizationRepository>();
 
+builder.Services.AddSingleton<CustomLogger>();
+
 builder.Services.AddAuthorizationBuilder();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

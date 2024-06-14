@@ -1,7 +1,5 @@
 ﻿namespace QualLMS.Domain.Models
 {
-    public record UserSession(string? Id, string? Name, string? Email, string? Role);
-
     public enum Roles
     {
         SuperAdmin = 0,

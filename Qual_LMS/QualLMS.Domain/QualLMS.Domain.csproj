@@ -7,7 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="APIModels\UserRegister.cs" />
+    <Compile Remove="Models\Login.cs" />
+    <Compile Remove="Models\ServiceResponses.cs" />
+    <Compile Remove="Models\UserSession.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\QualvationLibrary\QualvationLibrary.csproj" />
   </ItemGroup>
 
 </Project>

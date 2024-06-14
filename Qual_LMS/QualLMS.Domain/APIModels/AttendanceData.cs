@@ -19,10 +19,14 @@ namespace QualLMS.Domain.APIModels
 
         [DataType(DataType.DateTime)]
         [JsonPropertyName("checkIn")]
-        public DateTime CheckIn { get; set; }
+        public DateTime? CheckIn { get; set; }
 
         [DataType(DataType.DateTime)]
         [JsonPropertyName("checkOut")]
-        public DateTime CheckOut { get; set; }
+        public DateTime? CheckOut { get; set; }
+
+        public string Role { get; set; } = string.Empty;
+
+        public string FullName { get; set; } = string.Empty;
     }
 }

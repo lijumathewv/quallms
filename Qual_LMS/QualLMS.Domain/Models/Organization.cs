@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QualLMS.Domain.Models
 {
+    [Table("Organization")]
     public class Organization
     {
         [Key]
@@ -33,7 +35,7 @@ namespace QualLMS.Domain.Models
         [DataType(DataType.Text)]
         public string OfficeGeoLocation { get; set; } = String.Empty;
 
-        public virtual ICollection<AppUser> Users { get; set; } = new List<AppUser>();
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
 
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 

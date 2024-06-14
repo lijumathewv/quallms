@@ -3,35 +3,87 @@ using Microsoft.IdentityModel.Tokens;
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
+using QualvationLibrary;
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Text;
-using static QualLMS.Domain.Models.ServiceResponses;
+using System.Text.Json;
+using static QualvationLibrary.ServiceResponse;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QualLMS.API.Repositories
 {
-    public class AccountRepository(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config) : IUserAccount
+    public class AccountRepository(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config) : IUserAccount
     {
-        public ResponsesWithData AllUsers(Guid OrganizationId)
+        public async Task<ResponsesWithData> AllUsers(Guid OrganizationId)
         {
             var users = userManager.Users.Where(u => u.OrganizationId == OrganizationId).ToList();
-            return new ResponsesWithData(true, users, "Data found!");
+
+            List<UserAllData> result = new List<UserAllData>();
+            foreach (var user in users)
+            {
+                var userdata = new UserAllData
+                {
+                    Id = new Guid(user.Id),
+                    EmailId = user.Email!,
+                    FullName = user.FullName!,
+                    ParentName = user.ParentName!,
+                    ParentNumber = user.ParentNumber!,
+                    PhoneNumber = user.PhoneNumber!
+                };
+
+                var userRoles = await userManager.GetRolesAsync(user);
+
+                userdata.Role = userRoles.FirstOrDefault()!;
+                result.Add(userdata);
+            }
+
+            return new ResponsesWithData(true, JsonSerializer.Serialize(result), "Data found!");
+        }
+
+        public async Task<GeneralResponses> ChangePassword(ChangePassword change)
+        {
+            var user = await userManager.FindByEmailAsync(change.EmailId);
+            if (user == null)
+            {
+                // Handle user not found
+                return new GeneralResponses(false, "User not found!");
+            }
+
+            // Verify the old password
+            var isOldPasswordCorrect = await userManager.CheckPasswordAsync(user, change.CurrentPassword);
+            if (!isOldPasswordCorrect)
+            {
+                // Handle incorrect old password
+                return new GeneralResponses(false, "Incorrect old password.");
+            }
+
+            // Change the password
+            var result = await userManager.ChangePasswordAsync(user, change.CurrentPassword, change.NewPassword);
+            if (result.Succeeded)
+            {
+                // Password changed successfully
+                return new GeneralResponses(true, "Password Changed Successfully!");
+            }
+            else
+            {
+                return new GeneralResponses(false, "Error changing password: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
         }
 
         public async Task<GeneralResponses> CreateAccount(UserRegister userModel)
         {
             if (userModel is null) return new GeneralResponses(false, "Model is empty");
-            var newUser = new AppUser()
+            var newUser = new User()
             {
                 FullName = userModel.FullName,
-                ParentName = userModel.ParentName,
-                ParentNumber = userModel.ParentNumber,
                 OrganizationId = userModel.OrganizationId,
                 Email = userModel.EmailId,
                 PhoneNumber = userModel.PhoneNumber,
                 PasswordHash = userModel.Password,
-                UserName = userModel.EmailId
+                UserName = userModel.EmailId,
+                CreatedAt = DateTime.Now
             };
 
             if (!Enum.IsDefined(typeof(Roles), userModel.RoleId)) return new GeneralResponses(false, "Invalid Role");
@@ -42,23 +94,44 @@ namespace QualLMS.API.Repositories
             if (user is not null) return new GeneralResponses(false, "User registered already with this Email!");
 
             var createUser = await userManager.CreateAsync(newUser!, userModel.Password);
-            if (!createUser.Succeeded) return new GeneralResponses(false, "Error occured.. please try again");
+            if (!createUser.Succeeded)
+            {
+                string PasswordMessage = "";
+                foreach (var r in createUser.Errors)
+                {
+                    PasswordMessage += r.Description + "\r\n";
+                }
+                return new GeneralResponses(false, "Error occured..\r\n" + PasswordMessage);
+
+            }
 
             //Assign Default Role : Admin to first registrar; rest is user
             var checkAdmin = await roleManager.FindByNameAsync("SuperAdmin");
+
+            if (checkAdmin is not null)
+            {
+                if (checkAdmin!.Name == roleName && roleName == "SuperAdmin")
+                {
+                    return new GeneralResponses(false, "Invalid Role");
+                }
+            }
+
             if (checkAdmin is null)
             {
                 await roleManager.CreateAsync(new IdentityRole() { Name = "SuperAdmin" });
                 await userManager.AddToRoleAsync(newUser, "SuperAdmin");
+
                 return new GeneralResponses(true, "Account Created");
             }
             else
             {
                 var checkUser = await roleManager.FindByNameAsync(roleName);
+
                 if (checkUser is null)
                     await roleManager.CreateAsync(new IdentityRole() { Name = roleName });
 
                 await userManager.AddToRoleAsync(newUser, roleName);
+
                 return new GeneralResponses(true, "Account Created");
             }
         }
@@ -69,9 +142,9 @@ namespace QualLMS.API.Repositories
             if (Login == null)
                 return new LoginResponses(new LoginProperties
                 {
-                    Flag = false,
+                    Flag = true,
                     Token = null!,
-                    Role = -1,
+                    Role = "None",
                     Message = "Login container is empty"
                 });
 
@@ -79,9 +152,9 @@ namespace QualLMS.API.Repositories
             if (getUser is null)
                 return new LoginResponses(new LoginProperties
                 {
-                    Flag = false,
+                    Flag = true,
                     Token = null!,
-                    Role = -1,
+                    Role = "None",
                     Message = "User not found"
                 });
 
@@ -89,9 +162,9 @@ namespace QualLMS.API.Repositories
             if (!checkUserPasswords)
                 return new LoginResponses(new LoginProperties
                 {
-                    Flag = false,
+                    Flag = true,
                     Token = null!,
-                    Role = -1,
+                    Role = "None",
                     Message = "Invalid email/password"
                 });
 
@@ -104,14 +177,12 @@ namespace QualLMS.API.Repositories
             return new LoginResponses(new LoginProperties
             {
                 Id = getUser.Id,
-                Flag = true,
+                Flag = false,
                 EmailId = getUser.Email!,
                 Token = token!,
-                Role = (int)role,
+                Role = getUserRole.FirstOrDefault()!,
                 FullName = getUser.FullName!,
                 OrganizationId = getUser.OrganizationId!,
-                ParentName = getUser.ParentName!,
-                ParentNumber = getUser.ParentNumber!,
                 Message = "Login Completed"
             });
         }

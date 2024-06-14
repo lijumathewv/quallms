@@ -1,6 +1,7 @@
 ﻿using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Models;
-using static QualLMS.Domain.Models.ServiceResponses;
+using QualvationLibrary;
+using static QualvationLibrary.ServiceResponse;
 
 
 namespace QualLMS.Domain.Contracts
@@ -9,6 +10,6 @@ namespace QualLMS.Domain.Contracts
     {
         Task<GeneralResponses> CreateAccount(UserRegister user);
         Task<LoginResponses> LoginAccount(Login user);
-        ResponsesWithData AllUsers(Guid OrganizationId);
+        Task<ResponsesWithData> AllUsers(Guid OrganizationId);
     }
 }

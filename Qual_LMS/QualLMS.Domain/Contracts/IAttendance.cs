@@ -1,6 +1,6 @@
 ﻿using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Models;
-using static QualLMS.Domain.Models.ServiceResponses;
+using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.Domain.Contracts
 {
@@ -10,6 +10,7 @@ namespace QualLMS.Domain.Contracts
         ResponsesWithData CheckOut(AttendanceData attendance);
 
         ResponsesWithData GetMyAttendance(Guid Id);
+        ResponsesWithData GetOrganizationAttendance(Guid OrgId);
         ResponsesWithData GetAttendanceForToday(Guid Id);
         ResponsesWithData GetMyAttendanceDateFilter(Guid Id, DateOnly StartDate, DateOnly EndDate);
     }

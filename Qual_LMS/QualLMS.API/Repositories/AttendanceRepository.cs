@@ -1,13 +1,17 @@
-﻿using QualLMS.API.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using QualLMS.API.Data;
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using System.Collections.ObjectModel;
-using static QualLMS.Domain.Models.ServiceResponses;
+using System.Data;
+using System.Text.Json;
+using static QualvationLibrary.ServiceResponse;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QualLMS.API.Repositories
 {
-    public class AttendanceRepository (DataContext dataContext) : IAttendance
+    public class AttendanceRepository (UserManager<User> userManager, DataContext dataContext) : IAttendance
     {
         public ResponsesWithData CheckIn(AttendanceData attendance)
         {
@@ -83,23 +87,61 @@ namespace QualLMS.API.Repositories
         public ResponsesWithData GetMyAttendance(Guid Id)
         {
             ResponsesWithData responses;
-            List<Attendance> attendances = new List<Attendance>();
+            List<Attendance> data = new List<Attendance>();
             try
             {
-                attendances = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString()).OrderBy(o => o.AttendanceDate).ToList();
+                data = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString()).OrderBy(o => o.AttendanceDate).ToList();
 
-                if (attendances == null)
+                if (data == null)
                 {
                     throw new Exception("No data found!");
                 }
                 else
                 {
-                    responses = new ResponsesWithData(true, attendances, "Data found!");
+                    responses = new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data found!");
                 }
             }
             catch (Exception ex)
             {
-                responses = new ResponsesWithData(false, attendances, ex.Message);
+                responses = new ResponsesWithData(false, JsonSerializer.Serialize(data), ex.Message);
+            }
+
+            return responses;
+        }
+
+        public ResponsesWithData GetOrganizationAttendance(Guid OrgId)
+        {
+            ResponsesWithData responses;
+            List<AttendanceData> data = new List<AttendanceData>();
+            try
+            {
+                data = (from usr in userManager.Users.Where(o => o.OrganizationId == OrgId)
+                           join att in dataContext.Attendance
+                           on usr.Id equals att.AppUserId
+                           select new AttendanceData
+                           {
+                               Id = att.Id.ToString(),
+                               AppId = att.AppUserId,
+                               CurrentDate = DateTime.Parse(att.AttendanceDate.ToString()!),
+                               CheckIn = att.CheckIn,
+                               CheckOut = att.CheckOut,
+                               FullName = usr.FullName!
+                           }).ToList();
+
+                //data = dataContext.Attendance.Where(o => Ids.Contains(o.Id.ToString())).OrderBy(o => o.AttendanceDate).ToList();
+
+                if (data == null)
+                {
+                    throw new Exception("No data found!");
+                }
+                else
+                {
+                    responses = new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data found!");
+                }
+            }
+            catch (Exception ex)
+            {
+                responses = new ResponsesWithData(false, JsonSerializer.Serialize(data), ex.Message);
             }
 
             return responses;
@@ -108,23 +150,23 @@ namespace QualLMS.API.Repositories
         public ResponsesWithData GetAttendanceForToday(Guid Id)
         {
             ResponsesWithData responses;
-            Attendance attendance = new Attendance();
+            Attendance data = new Attendance();
             try
             {
-                attendance = dataContext.Attendance.FirstOrDefault(o => o.AppUserId == Id.ToString() && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
+                data = dataContext.Attendance.FirstOrDefault(o => o.AppUserId == Id.ToString() && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
 
-                if (attendance == null)
+                if (data == null)
                 {
                     throw new Exception("No data found!");
                 }
                 else
                 {
-                    responses = new ResponsesWithData(true, attendance, "Data found!");
+                    responses = new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data found!");
                 }
             }
             catch (Exception ex)
             {
-                responses = new ResponsesWithData(false, attendance!, ex.Message);
+                responses = new ResponsesWithData(false, JsonSerializer.Serialize(data)!, ex.Message);
             }
 
             return responses;
@@ -133,23 +175,23 @@ namespace QualLMS.API.Repositories
         public ResponsesWithData GetMyAttendanceDateFilter(Guid Id, DateOnly StartDate, DateOnly EndDate)
         {
             ResponsesWithData responses;
-            List<Attendance> attendances = new List<Attendance>();
+            List<Attendance> data = new List<Attendance>();
             try
             {
-                attendances = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString() && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
+                data = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString() && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
 
-                if (attendances == null)
+                if (data == null)
                 {
                     throw new Exception("No data found!");
                 }
                 else
                 {
-                    responses = new ResponsesWithData(true, attendances, "Data found!");
+                    responses = new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data found!");
                 }
             }
             catch (Exception ex)
             {
-                responses = new ResponsesWithData(false, attendances, ex.Message);
+                responses = new ResponsesWithData(false, JsonSerializer.Serialize(data), ex.Message);
             }
 
             return responses;

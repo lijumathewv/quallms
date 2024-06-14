@@ -1,70 +1,147 @@
 ﻿using QualLMS.API.Data;
 using QualLMS.Domain.Contracts;
-using static QualLMS.Domain.Models.ServiceResponses;
-using QualLMS.Domain.APIModels;
+using static QualvationLibrary.ServiceResponse;
 using QualLMS.Domain.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json;
+using QualvationLibrary;
 
 namespace QualLMS.API.Repositories
 {
-    public class OrganizationRepository(DataContext dataContext) : IOrganization
+    public class OrganizationRepository(DataContext context, IUserAccount user, CustomLogger logger) : IOrganization
     {
-        public GeneralResponses Add(OrganizationData organization)
+        public ServiceResponse.GeneralResponses AddOrUpdate(Organization model)
         {
-            GeneralResponses responses;
             try
             {
-                var org = dataContext.Organization.FirstOrDefault(o => o.EmailId == organization.EmailId);
-                if (org == null)
-                {
-                    dataContext.Organization.Add(new Domain.Models.Organization
-                    {
-                        Id = Guid.NewGuid(),
-                        EmailId = organization.EmailId,
-                        FullName = organization.FullName,
-                        PhoneNumber = organization.PhoneNumber,
-                        Address = organization.Address,
-                        DomainName = organization.DomainName,
-                        OfficeGeoLocation = organization.OfficeGeoLocation
-                    });
-                    dataContext.SaveChanges();
+                model.Users = null!;
+                bool flg = true;
+                string message = "";
 
-                    responses = new GeneralResponses(true, "Data Updated!");
+                var data = context.Organizations.FirstOrDefault(o => o.Id == model.Id);
+                if (data == null)
+                {
+                    //model.CannotDelete = false;
+                    context.Organizations.Add(model);
+
+                    var response = user.CreateAccount(new UserRegister
+                    {
+                        FullName = "Admin",
+                        OrganizationId = model.Id,
+                        EmailId = model.EmailId,
+                        PhoneNumber = model.PhoneNumber,
+                        RoleId = (int)Roles.Admin,
+                        Password = "Admin@123",
+                        ConfirmPassword = "Admin@123"
+                    });
+
+                    flg = response.Result.flag;
+
+                    if (!flg)
+                    {
+                        message = "Unable to create Admin User </br>" + response.Result.message;
+                    }
+                    else
+                    {
+                        message = "Data Created!";
+                    }
+
                 }
                 else
                 {
-                    throw new Exception("Organization already Exists!");
+                    data.FullName = model.FullName;
+                    data.Address = model.Address;
+                    data.DomainName = model.DomainName;
+                    data.PhoneNumber = model.PhoneNumber;
+                    data.EmailId = model.EmailId;
+                    data.OfficeGeoLocation = model.OfficeGeoLocation;
+                    //data.IsDeleted = false;
+
+                    message = "Data Updated!";
                 }
+
+                context.SaveChanges();
+
+                return new GeneralResponses(true, message);
             }
             catch (Exception ex)
             {
-                responses = new GeneralResponses(false, ex.Message);
+                logger.GenerateException(ex);
+                return new GeneralResponses(false, "Error Occured!");
             }
-
-            return responses;
         }
 
-        public ResponsesWithData Get()
+        public ServiceResponse.GeneralResponses Delete(string Id)
         {
-            ResponsesWithData responses;
             try
             {
-                var data = dataContext.Organization.OrderBy(o => o.FullName).ToList();
+                var data = context.Organizations.FirstOrDefault(o => o.Id == new Guid(Id));
                 if (data != null)
                 {
-                    responses = new ResponsesWithData(true, data, "Data found!");
+                    //data.IsDeleted = true;
+                    context.SaveChanges();
+
+                    return new GeneralResponses(true, "Data Deleted!");
                 }
                 else
                 {
-                    throw new Exception("Organization already Exists!");
+                    return new GeneralResponses(true, "Data Already Deleted!");
                 }
+
             }
             catch (Exception ex)
             {
-                responses = new ResponsesWithData(false,null!, ex.Message);
+                logger.GenerateException(ex);
+                return new GeneralResponses(false, "Error Occured!");
             }
+        }
 
-            return responses;
+        public ServiceResponse.ResponsesWithData Get()
+        {
+            try
+            {
+                var data = (from u in context.Organizations
+                            select new Organization
+                            {
+                                Id = u.Id,
+                                FullName = u.FullName!,
+                                Address = u.Address!,
+                                PhoneNumber = u.PhoneNumber!,
+                                EmailId = u.EmailId!,
+                                DomainName = u.DomainName!,
+                                OfficeGeoLocation = u.OfficeGeoLocation!,
+                            }).ToList();
+
+                return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
+            }
+            catch (Exception ex)
+            {
+                logger.GenerateException(ex);
+                return new ResponsesWithData(false, "", "Error Occured!");
+            }
+        }
+
+        public ServiceResponse.ResponsesWithData Get(string Id)
+        {
+            try
+            {
+                var data = context.Organizations.Select(u => new Organization
+                {
+                    Id = u.Id,
+                    FullName = u.FullName!,
+                    Address = u.Address!,
+                    PhoneNumber = u.PhoneNumber!,
+                    EmailId = u.EmailId!,
+                    DomainName = u.DomainName!,
+                    OfficeGeoLocation = u.OfficeGeoLocation!
+                }).FirstOrDefault(o => o.Id == new Guid(Id));
+
+                return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
+            }
+            catch (Exception ex)
+            {
+                logger.GenerateException(ex);
+                return new ResponsesWithData(false, "", "Error Occured!");
+            }
         }
     }
 }

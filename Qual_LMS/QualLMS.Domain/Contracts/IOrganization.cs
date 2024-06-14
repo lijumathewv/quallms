@@ -1,11 +1,14 @@
 ﻿using QualLMS.Domain.APIModels;
-using static QualLMS.Domain.Models.ServiceResponses;
+using QualLMS.Domain.Models;
+using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.Domain.Contracts
 {
     public interface IOrganization
     {
-        GeneralResponses Add(OrganizationData model);
         ResponsesWithData Get();
+        ResponsesWithData Get(string Id);
+        GeneralResponses AddOrUpdate(Organization model);
+        GeneralResponses Delete(string Id);
     }
 }
