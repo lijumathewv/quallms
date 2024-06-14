@@ -1,10 +1,19 @@
-﻿@using QualLMS.Domain.APIModels
-@model OrganizationData
+﻿@using QualLMS.Domain.Models
+@using QualvationLibrary
 
-<!-- main-heading -->
+@model Organization
+@inject CustomLogger logger
+
 <h2 class="main-title-w3layouts mb-2 text-center">Add Organization</h2>
-<!--// main-heading -->
-<!-- Forms content -->
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+        <li class="breadcrumb-item"><a href="/Organization">Organization</a></li>
+        <li class="breadcrumb-item active">Add/Edit</li>
+    </ol>
+</nav>
+
 <section class="forms-section">
     <div class="container-fluid">
         <div class="row">
@@ -35,21 +44,21 @@
                         <input type="text" class="form-control" name="OfficeGeoLocation" value="@Model.OfficeGeoLocation" placeholder="Geo Location is mandatory" required="">
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Add</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
-                    @if (ViewBag.IsError)
+                    @if (logger.IsError)
                     {
                         <div class="form-group">
                             <div class="alert alert-danger" role="alert">
-                                @ViewBag.ErrorMessage
+                                @logger.ErrorMessage
                             </div>
                         </div>
                     }
-                    @if (ViewBag.IsSuccess)
+                    @if (logger.IsSuccess)
                     {
                         <div class="form-group">
                             <div class="alert alert-success" role="alert">
-                                @ViewBag.SuccessMessage
+                                @logger.SuccessMessage
                             </div>
                         </div>
                     }

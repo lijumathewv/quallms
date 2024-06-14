@@ -6,18 +6,21 @@
 @model List<Organization>
 
 @{
-
     var data = JsonSerializer.Serialize(Model);
-    string MainURL = string.Empty;
-    MainURL = logger.BaseURL + "Organization/all";
 }
 
 @section StylesAndScripts {
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 }
-<!-- main-heading -->
+
 <h2 class="main-title-w3layouts mb-2 text-center">Attendance</h2>
-<!--// main-heading -->
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+        <li class="breadcrumb-item active">Add/Edit</li>
+    </ol>
+</nav>
 
 <section id="carouselSection" class="carousels-section">
     <div class="outer-w3-agile mt-3">
@@ -38,8 +41,8 @@
 
     <script>
         $(document).ready(function () {
-            console.log("ready!");
             var model = @Html.Raw(data);
+            //console.log(model);
 
             let gridApi;
 
@@ -53,36 +56,45 @@
                 rowData: model,
                 // Column Definitions: Defines the columns to be displayed.
                 columnDefs: [
-                    { headerName: 'ID', field: 'Id', pinned: "left" },
-                    { headerName: 'UHIDNumber', field: 'UHIDNumber', pinned: "left", filter: true },
-                    { headerName: 'HospitalName', field: 'HospitalName', filter: true, floatingFilter: true, suppressMenu: true },
-                    { headerName: 'FirstName', field: 'FirstName', filter: true },
-                    { headerName: 'LastName', field: 'LastName', filter: true },
-                    { headerName: 'Age', field: 'Age', filter: 'agNumberColumnFilter' },
-                    { headerName: 'AreaCode', field: 'AreaCode' },
+                    { headerName: 'FullName', field: 'FullName', pinned: "left", filter: true },
+                    { headerName: 'EmailId', field: 'EmailId', filter: true },
+                    { headerName: 'PhoneNumber', field: 'PhoneNumber', filter: true },
+                    { headerName: 'Address', field: 'Address', filter: true },
+                    {
+                        headerName: 'Domain Name',
+                        cellRenderer: function (params) {
+                            var anchor = document.createElement('a');
+                            var data = params.data;
+
+                            console.log(data.OfficeGeoLocation);
+
+                            var icon = document.createElement('i');
+                            anchor.target = "_blank";
+                            anchor.title = "Domain Name!"
+                            anchor.href = data.DomainName;
+                            icon.className = 'fa fa-globe'; // Font Awesome class for edit icon
+
+                            anchor.appendChild(icon);
+
+                            return anchor;
+                        }
+                    },
                     { headerName: 'PhoneNumber', field: 'PhoneNumber', filter: true },
                     {
-                        headerName: '',
+                        headerName: 'Geo Location',
                         cellRenderer: function (params) {
                             var anchor = document.createElement('a');
                             var data = params.data;
 
-                            var icon = document.createElement('i');
+                            console.log(data.OfficeGeoLocation);
 
-                            if (data.IsDischarge == false) {
-                                anchor.title = "LOGBOOK DETAILS!"
-                                anchor.href = 'addbook?Id=' + data.Id; // Replace with your actual URL
-                                icon.className = 'fa fa-edit'; // Font Awesome class for edit icon
-                            }
-                            else {
-                                anchor.title = "Already Discharged!"
-                                anchor.href = '#'; // Replace with your actual URL
-                                icon.className = 'fa fa-edit'; // Font Awesome class for edit icon
-                            }
+                            var icon = document.createElement('i');
+                            anchor.target = "_blank";
+                            anchor.title = "GEO LOCATION!"
+                            anchor.href = 'https://www.google.com/maps/search/?api=1&query=' + data.OfficeGeoLocation; // Replace with your actual URL
+                            icon.className = 'fa fa-link'; // Font Awesome class for edit icon
 
                             anchor.appendChild(icon);
-                            anchor.addEventListener('click', function (event) {
-                            });
 
                             return anchor;
                         }
@@ -92,55 +104,14 @@
                         cellRenderer: function (params) {
                             var anchor = document.createElement('a');
                             var data = params.data;
-                            var icon = document.createElement('i');
 
-                            if (data.IsDischarge == false) {
-                                anchor.title = "SURGERY DETAILS!"
-                                anchor.href = 'Surgery?Id=' + data.Id; // Replace with your actual URL
-                                icon.className = 'fa fa-medkit'; // Font Awesome class for edit icon
-                                icon.style = "color:red";
-                            }
-                            else {
-                                anchor.title = "Already Discharged!"
-                                anchor.href = '#'; // Replace with your actual URL
-                                icon.className = 'fa fa-medkit'; // Font Awesome class for edit icon
-                                icon.style = "color:red";
-                            }
+                            var icon = document.createElement('i');
+                            anchor.title = "Edit Organisaton!"
+                            anchor.href = '/organization/add?Id=' + data.Id; // Replace with your actual URL
+                            icon.className = 'fa fa-edit'; // Font Awesome class for edit icon
 
                             anchor.appendChild(icon);
                             anchor.addEventListener('click', function (event) {
-                                // console.log("Surgery?Id=" + data.Id);
-                                // window.location.href = "Surgery?Id=" + data.Id;
-                            });
-
-                            return anchor;
-                        }
-                    },
-                    {
-                        headerName: '',
-                        cellRenderer: function (params) {
-                            var anchor = document.createElement('a');
-                            var data = params.data;
-                            //console.log(data.IsDischarge);
-
-                            var icon = document.createElement('i');
-
-                            if (data.IsDischarge == false) {
-                                anchor.title = "ADD DISCHARGE DETAILS!"
-                                anchor.href = 'addbook?Id=' + data.Id + '&discharge=yes'; // Replace with your actual URL
-                                icon.className = 'lnr lnr-exit'; // Font Awesome class for edit icon
-                                icon.style = "color:green";
-                            }
-                            else {
-                                anchor.title = "View Logbook!"
-                                anchor.href = '#'; // Replace with your actual URL
-                                icon.className = 'fa fa-eye'; // Font Awesome class for edit icon
-                                icon.style = "color:green";
-                            }
-
-                            anchor.appendChild(icon);
-                            anchor.addEventListener('click', function (event) {
-
                             });
 
                             return anchor;
@@ -152,12 +123,6 @@
             // Your Javascript code to create the data grid
             const myGridElement = document.querySelector('#myGrid');
             gridApi = agGrid.createGrid(myGridElement, gridOptions);
-
-            function getBoolean(id) {
-                var field = document.querySelector("#" + id);
-
-                return !!field.checked;
-            }
 
             function getParams() {
                 return {

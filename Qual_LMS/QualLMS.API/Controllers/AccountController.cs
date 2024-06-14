@@ -30,5 +30,12 @@ namespace QualLMS.API.Controllers
             var response = await userAccount.AllUsers(Id);
             return Ok(response);
         }
+
+        [HttpPost("get")]
+        public async Task<IActionResult> GetUser(string Id)
+        {
+            var response = await userAccount.GetUser(Id);
+            return Ok(response);
+        }
     }
 }

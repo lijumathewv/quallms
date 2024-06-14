@@ -22,5 +22,11 @@ namespace QualLMS.API.Controllers
             var response = organization.Get();
             return Ok(response);
         }
+        [HttpPost("get")]
+        public async Task<IActionResult> GetOrganization(string Id)
+        {
+            var response = organization.Get(Id);
+            return Ok(response);
+        }
     }
 }

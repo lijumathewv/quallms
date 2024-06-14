@@ -23,33 +23,45 @@ namespace QualLMS.WebAppMvc.Controllers
             }
         }
 
-        public IActionResult Add()
+        public IActionResult Add(string Id)
         {
-            ViewBag.IsError = false;
-            ViewBag.IsSuccess = false;
-            OrganizationData model = new OrganizationData();
-            return View(model);
+            if (logger.IsLogged)
+            {
+                Organization Model = new Organization();
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
+                }
+                return View(Model);
+            }
+            else
+            {
+                return RedirectToActionPermanent("Index", "Login");
+            }
         }
 
         [HttpPost]
-        public IActionResult Add(OrganizationData model)
+        public IActionResult Add(Organization model)
         {
             string json = JsonSerializer.Serialize(model);
 
-            var response = client.ExecutePostAPI<ResultCommon>("organization/add", json);
+            var res = client.ExecutePostAPI<ResultCommon>("organization/add", json);
 
-            //ResultCommon res = JsonSerializer.Deserialize<ResultCommon>(returnModel)!;
-            //ViewBag.IsError = !res.Flag;
-            //ViewBag.IsSuccess = res.Flag;
+            //ResultCommon res = JsonSerializer.Deserialize<ResultCommon>(response)!;
+            //logger.IsError = !res.Flag;
+            //logger.IsSuccess = res.Flag;
 
-            //if (ViewBag.IsError)
-            //{
-            //    ViewBag.ErrorMessage = res.Message;
-            //}
-            //else
-            //{
-            //    ViewBag.SuccessMessage = res.Message + " Please create an admin user.";
-            //}
+            logger.IsError = res.Error;
+            logger.IsSuccess = !res.Error;
+
+            if (res.Error)
+            {
+                logger.ErrorMessage = res.Message;
+            }
+            else
+            {
+                logger.SuccessMessage = res.Message;
+            }
             return View(model);
         }
     }

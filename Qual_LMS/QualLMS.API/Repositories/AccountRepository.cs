@@ -16,6 +16,25 @@ namespace QualLMS.API.Repositories
 {
     public class AccountRepository(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config) : IUserAccount
     {
+
+        public async Task<ResponsesWithData> GetUser(string Id)
+        {
+            var user = userManager.Users.FirstOrDefault(u => u.Id == Id);
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            UserAllData result = new UserAllData()
+            {
+                Id = new Guid(user.Id),
+                EmailId = user.Email!,
+                FullName = user.FullName!,
+                ParentName = user.ParentName!,
+                ParentNumber = user.ParentNumber!,
+                PhoneNumber = user.PhoneNumber!,
+                Role = userRoles.FirstOrDefault()!
+            };
+
+            return new ResponsesWithData(true, JsonSerializer.Serialize(result), "Data found!");
+        }
         public async Task<ResponsesWithData> AllUsers(Guid OrganizationId)
         {
             var users = userManager.Users.Where(u => u.OrganizationId == OrganizationId).ToList();

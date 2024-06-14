@@ -4,22 +4,47 @@
 @using System.Text.Json
 @using QualvationLibrary
 
-@model UserRegister
+@model UserAllData
 
 @inject CustomLogger logger
+@inject Client client
+
 @{
     Roles LoginRole = Roles.None;
     Enum.TryParse<Roles>(logger.LoginDetails.Role, out LoginRole);
-    int RId = Convert.ToInt32(ViewBag.Role);
 
-    Roles role = (Roles)RId;
+    SelectList orgSelect = new SelectList(new List<Organization>());
+    if (LoginRole == Roles.SuperAdmin)
+    {
+        var orgs = client.ExecutePostAPI<List<Organization>>("Organization/all");
 
-    string MainURL = logger.BaseURL + "Organization/all";
+        orgSelect = new SelectList(orgs, "Id", "FullName");
+    }
+
+    Roles role = Roles.None;
+    int RId;
+
+    if (Model.Id != Guid.Empty)
+    {
+        Enum.TryParse<Roles>(Model.Role, out role);
+        RId = (int)role;
+    }
+    else
+    {
+        RId = Convert.ToInt32(ViewBag.Role);
+        role = (Roles)RId;
+    }
 }
-<!-- main-heading -->
-<h2 class="main-title-w3layouts mb-2 text-center">Add User</h2>
-<!--// main-heading -->
-<!-- Forms content -->
+
+<h2 class="main-title-w3layouts mb-2 text-center">Add @role.ToString()</h2>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+        <li class="breadcrumb-item"><a href="/user">Users</a></li>
+        <li class="breadcrumb-item active">Add @role.ToString()</li>
+    </ol>
+</nav>
 <section class="forms-section">
     <div class="container-fluid">
         <div class="row">
@@ -30,7 +55,10 @@
                         {
                             <div class="form-group">
                                 <label for="OrgId">Organization</label>
-                                <input id="OrgId" class="form-control" name="OrganizationId" required="" style="width:100%;">
+                                @if (orgSelect != null)
+                                {
+                                    @Html.DropDownList("OrganizationId", orgSelect as SelectList, "-- Please Select --", new { @class = "custom-select" })
+                                }
                             </div>
                         }
                         else
@@ -40,15 +68,15 @@
                     }
                     <div class="form-group">
                         <label for="FullName">Full Name</label>
-                        <input id="FullName" type="text" class="form-control" name="FullName" placeholder="Full name is mandatory" required="">
+                        <input id="FullName" type="text" class="form-control" name="FullName" placeholder="Full name is mandatory" required="" value="@Model.FullName">
                     </div>
                     <div class="form-group">
                         <label for="EmailId">Email address</label>
-                        <input id="EmailId" type="email" class="form-control" name="EmailId" placeholder="name@example.com" required="">
+                        <input id="EmailId" type="email" class="form-control" name="EmailId" placeholder="name@example.com" required="" value="@Model.EmailId">
                     </div>
                     <div class="form-group">
                         <label for="PhoneNumber">Phone#</label>
-                        <input id="PhoneNumber" type="tel" class="form-control" name="PhoneNumber" placeholder="PhoneNumber is mandatory" required="">
+                        <input id="PhoneNumber" type="tel" class="form-control" name="PhoneNumber" placeholder="PhoneNumber is mandatory" required="" value="@Model.PhoneNumber">
                     </div>
                     <div class="form-group">
                         <label for="Password">Password</label>
@@ -63,11 +91,11 @@
                         {
                             <div class="form-group">
                                 <label for="ParentName">Parent Name</label>
-                                <input id="ParentName" type="text" class="form-control" name="ParentName" placeholder="Parent name is mandatory" required="">
+                                <input id="ParentName" type="text" class="form-control" name="ParentName" placeholder="Parent name is mandatory" required="" value="@Model.ParentName">
                             </div>
                             <div class="form-group">
                                 <label for="ParentNumber">Parent Phone #</label>
-                                <input id="ParentNumber" type="text" class="form-control" name="ParentNumber" placeholder="Parent Phone is mandatory" required="">
+                                <input id="ParentNumber" type="text" class="form-control" name="ParentNumber" placeholder="Parent Phone is mandatory" required="" value="@Model.ParentNumber">
                             </div>
                         }
                     }
@@ -96,40 +124,3 @@
         </div>
     </div>
 </section>
-
-@section Scripts
-{
-    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
-    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
-    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
-
-    @{
-        switch (LoginRole)
-        {
-            case Roles.SuperAdmin:
-                <script type="text/javascript">
-                    $(document).ready(function () {
-                        var rid = '@RId';
-
-                        $('#OrgId').combobox({
-                            url: '@MainURL',
-                            multiple: false,
-                            editable: false,
-                            valueField: 'id',
-                            textField: 'fullName',
-                            onSelect: function (record) {
-                                console.log('Selected:', record);
-                                $('#FullName').val(record.fullName);
-                                $('#EmailId').val(record.emailId);
-                                $('#PhoneNumber').val(record.phoneNumber);
-                            },
-                            loadFilter: function (data) {
-                                return data.returnData;
-                            }
-                        });
-                    });
-                </script>
-                break;
-        }
-    }
-}

@@ -20,37 +20,77 @@ namespace QualLMS.WebAppMvc.Controllers
             }
             else
             {
-                return View(new UserRegister());
+                if (logger.IsLogged)
+                {
+                    var data = client.ExecutePostAPI<List<UserAllData>>("account/all?Id=" + logger.LoginDetails.OrganizationId.ToString());
+                    return View(data);
+                }
+                else
+                {
+                    return RedirectToActionPermanent("Index", "Login");
+                }
             }
         }
 
-        public IActionResult Add()
+        public IActionResult Add(string Id)
         {
             ViewBag.Role = Request.Query["RId"];
-            return View(new UserRegister());
+
+            if (logger.IsLogged)
+            {
+                logger.ClearMessages();
+                UserAllData Model = new UserAllData();
+                //if (!string.IsNullOrEmpty(Id))
+                //{
+                //    Model = client.ExecutePostAPI<UserAllData>("account/get?Id=" + Id);
+                //}
+                return View(Model);
+            }
+            else
+            {
+                return RedirectToActionPermanent("Index", "Login");
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(UserRegister model)
+        public async Task<IActionResult> Add(UserAllData model)
         {
             ViewBag.Role = Request.Query["RId"];
             string json = JsonSerializer.Serialize(model);
-            var returnModel = client.ExecutePostAPI<ResultCommon>("account/registeraccount", json);
+            var res = client.ExecutePostAPI<ResultCommon>("account/registeraccount", json);
 
             //ResultCommon res = JsonSerializer.Deserialize<ResultCommon>(returnModel)!;
-            //logger.IsError = !res.Flag;
-            //logger.IsSuccess = res.Flag;
+            logger.IsError = res.Error;
+            logger.IsSuccess = !res.Error;
 
-            //if (logger.IsError)
-            //{
-            //    logger.ErrorMessage = res.Message;
-            //}
-            //else
-            //{
-            //    logger.SuccessMessage = res.Message;
-            //}
+            if (logger.IsError)
+            {
+                string msg = res.Message;
+                if (res.ApiError != null)
+                {
+                    if (res.ApiError.Errors != null)
+                    {
+                        foreach(var er in res.ApiError.Errors)
+                        {
+                            if (er.Value != null)
+                            {
+                                foreach (var val in er.Value)
+                                {
+                                    msg += "<br/>" + val;
+                                }
+                            }
+                        }
+                    }
+                }
+                logger.ErrorMessage = msg;
+                return View(model);
+            }
+            else
+            {
+                logger.SuccessMessage = res.Message;
+                return View(new UserAllData());
+            }
 
-            return View(new UserRegister());
         }
     }
 }
