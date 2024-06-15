@@ -36,48 +36,9 @@
                             Attendance
                         </a>
                     </li>
-                    <li>
-                        <a href="/home/Unauthorized">
-                            <i class="far fa-window-restore"></i>
-                            Fees
-                        </a>
-                    </li>
                     break;
                 }
             case Roles.Admin:
-                {
-                    <li class="active">
-                        <a href="/home">
-                            <i class="fas fa-th-large"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/User">
-                            <i class="fas fa-laptop"></i>
-                            Users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/home/Unauthorized">
-                            <i class="fas fa-chart-pie"></i>
-                            Batch
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/attendance">
-                            <i class="fas fa-th"></i>
-                            Attendance
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/course">
-                            <i class="far fa-window-restore"></i>
-                            Course
-                        </a>
-                    </li>
-                    break;
-                }
             case Roles.SuperAdmin:
                 {
                     <li class="active">
@@ -87,21 +48,33 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/Organization">
-                            <i class="fas fa-building"></i>
-                            Organization
+                        <a href="/StudentCourse">
+                            <i class="fa fa-graduation-cap"></i>
+                            Student Course(s)
                         </a>
                     </li>
+                    <li>
+                        <a href="/Receipts">
+                            <i class="fas fa-th"></i>
+                            Receipts List
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#BasicData" data-toggle="collapse" aria-expanded="false">
+                            <i class="far fa-file"></i>
+                            Basic Data
+                            <i class="fas fa-angle-down fa-pull-right"></i>
+                        </a>
+                        <ul class="collapse list-unstyled" id="BasicData">
+                            <li><a href="/course">Course List</a></li>
+                            <li><a href="/Fees">Fees List</a></li>
+                        </ul>
+                    </li>
+
                     <li>
                         <a href="/User">
                             <i class="fas fa-laptop"></i>
                             Users
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/home/Unauthorized">
-                            <i class="fas fa-chart-pie"></i>
-                            Batch
                         </a>
                     </li>
                     <li>
@@ -110,14 +83,17 @@
                             Attendance
                         </a>
                     </li>
-                    <li>
-                        <a href="/home/Unauthorized">
-                            <i class="far fa-window-restore"></i>
-                            Fees
-                        </a>
-                    </li>
                     break;
                 }
+        }
+        @if (Role == Roles.SuperAdmin)
+        {
+            <li>
+                <a href="/Organization">
+                    <i class="far fa-window-restore"></i>
+                    Organization
+                </a>
+            </li>
         }
     </ul>
 </nav>

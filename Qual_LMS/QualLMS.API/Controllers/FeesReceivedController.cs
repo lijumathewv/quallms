@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
-using QualLMS.Domain.Models;
 
 namespace QualLMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CourseController(ICourse repository) : ControllerBase
+    public class FeesReceivedController(IFeesReceived repository) : ControllerBase
     {
-
         [HttpPost("add")]
-        public IActionResult Add(Course model)
+        public IActionResult Add(FeesReceivedData model)
         {
             var response = repository.AddOrUpdate(model);
             return Ok(response);
@@ -35,13 +33,6 @@ namespace QualLMS.API.Controllers
         public IActionResult GetSingle(string Id)
         {
             var response = repository.Get(Id);
-            return Ok(response);
-        }
-
-        [HttpPost("getfees")]
-        public IActionResult GetFees(string Id)
-        {
-            var response = repository.GetFees(Id);
             return Ok(response);
         }
     }

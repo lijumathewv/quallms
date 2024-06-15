@@ -12,8 +12,8 @@ using QualLMS.API.Data;
 namespace QualLMS.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240615073841_Course")]
-    partial class Course
+    [Migration("20240615185113_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -280,6 +280,9 @@ namespace QualLMS.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateOnly>("ReceiptDate")
                         .HasColumnType("date");
 
@@ -299,6 +302,8 @@ namespace QualLMS.API.Migrations
                     b.HasIndex("CourseId");
 
                     b.HasIndex("FeesId");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("UserId");
 
@@ -338,6 +343,46 @@ namespace QualLMS.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Organization");
+                });
+
+            modelBuilder.Entity("QualLMS.Domain.Models.StudentCourse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdmissionNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CourseFees")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RecentEducation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("StudentCourse");
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.User", b =>
@@ -423,44 +468,6 @@ namespace QualLMS.API.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("QualLMS.Domain.Models.UserInformation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AdmissionNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CourseFees")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RecentEducation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserInformation");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -580,6 +587,12 @@ namespace QualLMS.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("QualLMS.Domain.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("QualLMS.Domain.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -590,7 +603,28 @@ namespace QualLMS.API.Migrations
 
                     b.Navigation("Fees");
 
+                    b.Navigation("Organization");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QualLMS.Domain.Models.StudentCourse", b =>
+                {
+                    b.HasOne("QualLMS.Domain.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QualLMS.Domain.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.User", b =>
@@ -602,30 +636,6 @@ namespace QualLMS.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Organization");
-                });
-
-            modelBuilder.Entity("QualLMS.Domain.Models.UserInformation", b =>
-                {
-                    b.HasOne("QualLMS.Domain.Models.Course", "Course")
-                        .WithMany("UserInformations")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QualLMS.Domain.Models.User", "User")
-                        .WithMany("UserInformations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("QualLMS.Domain.Models.Course", b =>
-                {
-                    b.Navigation("UserInformations");
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.Organization", b =>
@@ -640,8 +650,6 @@ namespace QualLMS.API.Migrations
             modelBuilder.Entity("QualLMS.Domain.Models.User", b =>
                 {
                     b.Navigation("Attendances");
-
-                    b.Navigation("UserInformations");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,11 +7,11 @@ namespace QualLMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CourseController(ICourse repository) : ControllerBase
+    public class FeesController(IFees repository) : ControllerBase
     {
 
         [HttpPost("add")]
-        public IActionResult Add(Course model)
+        public IActionResult Add(Fees model)
         {
             var response = repository.AddOrUpdate(model);
             return Ok(response);
@@ -35,13 +35,6 @@ namespace QualLMS.API.Controllers
         public IActionResult GetSingle(string Id)
         {
             var response = repository.Get(Id);
-            return Ok(response);
-        }
-
-        [HttpPost("getfees")]
-        public IActionResult GetFees(string Id)
-        {
-            var response = repository.GetFees(Id);
             return Ok(response);
         }
     }

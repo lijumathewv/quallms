@@ -7,21 +7,20 @@ using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.API.Repositories
 {
-    public class CourseRepository(DataContext context, CustomLogger logger) : ICourse
+    public class FeesRepository(DataContext context, CustomLogger logger) : IFees
     {
-        public ServiceResponse.GeneralResponses AddOrUpdate(Course model)
+        public ServiceResponse.GeneralResponses AddOrUpdate(Fees model)
         {
             try
             {
-                var data = context.Course.FirstOrDefault(o => o.Id == model.Id);
+                var data = context.Fees.FirstOrDefault(o => o.Id == model.Id);
                 if (data == null)
                 {
-                    context.Course.Add(model);
+                    context.Fees.Add(model);
                 }
                 else
                 {
-                    data.CourseName = model.CourseName;
-                    data.CourseFees = model.CourseFees;
+                    data.FeesName = model.FeesName;
                     data.OrganizationId = model.OrganizationId;
                 }
                 context.SaveChanges();
@@ -39,10 +38,10 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var data = context.Course.FirstOrDefault(o => o.Id == new Guid(Id));
+                var data = context.Fees.FirstOrDefault(o => o.Id == new Guid(Id));
                 if (data != null)
                 {
-                    context.Course.Remove(data);
+                    context.Fees.Remove(data);
                     context.SaveChanges();
 
                     return new GeneralResponses(true, "Data Deleted!");
@@ -64,7 +63,7 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var data = context.Course.ToList();
+                var data = context.Fees.ToList();
 
                 return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
             }
@@ -79,31 +78,9 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var data = context.Course.FirstOrDefault(h => h.Id == new Guid(Id));
+                var data = context.Fees.FirstOrDefault(h => h.Id == new Guid(Id));
 
                 return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
-            }
-            catch (Exception ex)
-            {
-                logger.GenerateException(ex);
-                return new ResponsesWithData(false, "", "Error Occured!");
-            }
-        }
-
-        public ServiceResponse.ResponsesWithData GetFees(string Id)
-        {
-            try
-            {
-                var data = context.Course.FirstOrDefault(h => h.Id == new Guid(Id));
-
-                int fees = 0;
-
-                if (data != null)
-                {
-                    fees = data.CourseFees;
-                }
-
-                return new ResponsesWithData(true, JsonSerializer.Serialize(fees), "Data Retrieved!");
             }
             catch (Exception ex)
             {

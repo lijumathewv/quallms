@@ -3,14 +3,11 @@ using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.Domain.Contracts
 {
-    public interface ICourse
+    public interface IFees
     {
         ResponsesWithData Get();
         ResponsesWithData Get(string Id);
-        ResponsesWithData GetFees(string Id);
-        ResponsesWithData GetStudents(string Id);
-        ResponsesWithData GetTeachers(string Id);
-        GeneralResponses AddOrUpdate(Course model);
+        GeneralResponses AddOrUpdate(Fees model);
         GeneralResponses Delete(string Id);
 
     }

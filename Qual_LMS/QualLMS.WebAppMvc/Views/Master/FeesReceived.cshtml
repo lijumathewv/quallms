@@ -1,7 +1,7 @@
 ﻿@using System.Text.Json
-@using QualLMS.Domain.Models
+@using QualLMS.Domain.APIModels
 
-@model List<Course>
+@model List<FeesReceivedData>
 
 @{
     var data = JsonSerializer.Serialize(Model);
@@ -13,7 +13,7 @@
 
 <div class="form-row">
     <div class="col-md-1 md-3">
-        <a href="#" class="btn btn-outline-primary" data-toggle="modal" data-target="#UpdateModal">Add New</a>
+        <a href="/AddReceipts" class="btn btn-outline-primary">Add New</a>
     </div>
     <div class="col-md-12 md-3">
         &nbsp;
@@ -45,44 +45,14 @@
     }
 </div>
 
-<!-- basic modal -->
-<div class="modal fade" id="UpdateModal" tabindex="-1" role="dialog" aria-labelledby="UpdateModal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Add/Edit Course</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form method="post" action="/AddCourse">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="CourseName">Course Name</label>
-                        <input type="hidden" class="form-control" id="CourseId" name="CourseId">
-                        <input type="text" class="form-control" id="CourseName" name="CourseName" placeholder="Course Name is mandatory" required="">
-                    </div>
-                    <div class="form-group">
-                        <label for="CourseName">Course Fees</label>
-                        <input type="number" class="form-control" id="CourseFees" name="CourseFees" placeholder="Course Fees is mandatory" required="">
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
 
     <script>
         $(document).ready(function () {
             console.log("ready!");
             var model = @Html.Raw(data);
+
+            console.log(model);
 
             let gridApi;
 
@@ -100,7 +70,7 @@
                 columnDefs: [
                     { headerName: 'ID', field: 'Id', pinned: "left" },
                     { headerName: 'CourseName', field: 'CourseName', pinned: "left" },
-                    { headerName: 'CourseFees', field: 'CourseFees', filter: true },
+                    { headerName: 'ReceiptNumber', field: 'ReceiptNumber', filter: true },
                     {
                         headerName: '',
                         cellRenderer: function (params) {

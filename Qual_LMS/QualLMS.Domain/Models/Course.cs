@@ -16,7 +16,5 @@ namespace QualLMS.Domain.Models
         [Required]
         public Guid OrganizationId { get; set; }
         public virtual Organization? Organization { get; set; }
-
-        public virtual ICollection<UserInformation> UserInformations { get; set; } = new List<UserInformation>();
     }
 }

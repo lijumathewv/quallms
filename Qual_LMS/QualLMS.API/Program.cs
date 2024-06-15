@@ -60,7 +60,8 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins(builder.Configuration.GetSection("LMSConfig:CORSOrigins").Get<string[]>())
+        //policy.WithOrigins(builder.Configuration.GetSection("LMSConfig:CORSOrigins").Get<string[]>())
+        policy.AllowAnyOrigin()
         .AllowAnyHeader().AllowAnyMethod();
     });
 });
@@ -70,6 +71,9 @@ builder.Services.AddScoped<IAttendance, AttendanceRepository>();
 builder.Services.AddScoped<IOrganization, OrganizationRepository>();
 
 builder.Services.AddScoped<ICourse, CourseRepository>();
+builder.Services.AddScoped<IFees, FeesRepository>();
+builder.Services.AddScoped<IFeesReceived, FeesReceivedRepository>();
+builder.Services.AddScoped<IStudentCourse, StudentCourseRepository>();
 
 builder.Services.AddSingleton<CustomLogger>();
 

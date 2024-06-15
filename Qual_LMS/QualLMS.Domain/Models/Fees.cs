@@ -12,6 +12,6 @@ namespace QualLMS.Domain.Models
 
         [Required]
         public Guid OrganizationId { get; set; }
-        public virtual Organization Organization { get; set; } = null!;
+        public virtual Organization? Organization { get; set; }
     }
 }
