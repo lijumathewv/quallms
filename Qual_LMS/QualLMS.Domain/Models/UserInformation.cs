@@ -9,8 +9,8 @@ namespace QualLMS.Domain.Models
 
         [Required]
         [StringLength(450)]
-        public string AppUserId { get; set; } = string.Empty;
-        public virtual User AppUser { get; set; } = null!;
+        public string UserId { get; set; } = string.Empty;
+        public virtual User User { get; set; } = null!;
 
         [Required]
         public string Address { get; set; } = string.Empty;
@@ -23,6 +23,8 @@ namespace QualLMS.Domain.Models
         public virtual Course Course { get; set; } = null!;
 
         public string AdmissionNumber { get; set; } = string.Empty;
+
+        public int CourseFees { get; set; }
 
     }
 }

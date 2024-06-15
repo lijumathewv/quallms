@@ -69,6 +69,8 @@ builder.Services.AddScoped<IUserAccount, AccountRepository>();
 builder.Services.AddScoped<IAttendance, AttendanceRepository>();
 builder.Services.AddScoped<IOrganization, OrganizationRepository>();
 
+builder.Services.AddScoped<ICourse, CourseRepository>();
+
 builder.Services.AddSingleton<CustomLogger>();
 
 builder.Services.AddAuthorizationBuilder();

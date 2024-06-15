@@ -7,12 +7,15 @@ namespace QualLMS.Domain.Models
         [Required]
         public Guid Id { get; set; }
 
-        [Required] 
+        [Required]
         public string CourseName { get; set; } = string.Empty;
 
         [Required]
+        public int CourseFees { get; set; }
+
+        [Required]
         public Guid OrganizationId { get; set; }
-        public virtual Organization Organization { get; set; } = null!;
+        public virtual Organization? Organization { get; set; }
 
         public virtual ICollection<UserInformation> UserInformations { get; set; } = new List<UserInformation>();
     }

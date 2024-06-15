@@ -13,5 +13,9 @@ namespace QualLMS.API.Data
         public DbSet<Attendance> Attendance { get; set; }
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<UserInformation> UserInformation { get; set; }
+        public DbSet<Course> Course { get; set; }
+        public DbSet<Fees> Fees { get; set; }
+        public DbSet<FeesReceived> FeesReceived { get; set; }
+        public DbSet<Calendar> Calendar { get; set; }
     }
 }
