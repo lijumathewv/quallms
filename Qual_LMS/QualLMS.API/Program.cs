@@ -7,6 +7,8 @@ using QualLMS.API.Repositories;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualvationLibrary;
+using Serilog;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,6 +82,19 @@ builder.Services.AddScoped<ICalendar, CalendarRepository>();
 builder.Services.AddSingleton<CustomLogger>();
 
 builder.Services.AddAuthorizationBuilder();
+//Configure Logging
+var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+Log.Logger = new LoggerConfiguration()
+     .Enrich.FromLogContext()
+.WriteTo.Console()
+    .WriteTo.File(new CustomFormatter(), "logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -98,6 +113,9 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ClientIpEnricherMiddleware>();
+app.UseSerilogRequestLogging(); // Add Serilog request logging
 
 app.MapControllers();
 

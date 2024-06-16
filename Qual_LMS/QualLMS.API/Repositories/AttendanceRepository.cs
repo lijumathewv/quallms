@@ -18,27 +18,44 @@ namespace QualLMS.API.Repositories
             ResponsesWithData? responses = null;
             try
             {
-                DateOnly currentDate = new DateOnly(attendance.CurrentDate.Year, attendance.CurrentDate.Month, attendance.CurrentDate.Day);
-                var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.AppUserId == attendance.AppId);
+                DateOnly currentDate = DateOnly.Parse(attendance.CurrentDate.ToShortDateString());
+                TimeOnly checkin = TimeOnly.Parse(Convert.ToDateTime(attendance.CheckIn).ToShortTimeString());
 
-                if (data == null)
+                var calender = (from c in dataContext.Calendar
+                                join sc in dataContext.StudentCourse on c.CourseId equals sc.CourseId
+                                where sc.StudentId == attendance.AppId
+                                && c.Date == currentDate
+                                && c.StartTime < checkin && c.EndTime > checkin
+                                select c).ToList();
+
+                if (calender.Count == 0)
                 {
-                    dataContext.Attendance.Add(new Attendance
-                    {
-                        Id = Guid.NewGuid(),
-                        AppUserId = attendance.AppId,
-                        AttendanceDate = currentDate,
-                        CheckIn = attendance.CheckIn
-                    });
+                    throw new Exception("Error Occured! No Course found at this time!");
                 }
                 else
                 {
-                    data.CheckIn = attendance.CheckIn;
-                    data.CheckOut = null;
-                }
-                dataContext.SaveChanges();
+                    var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.UserId == attendance.AppId);
 
-                responses = new ResponsesWithData(true, null!, "Check-In Success!");
+                    if (data == null)
+                    {
+                        dataContext.Attendance.Add(new Attendance
+                        {
+                            Id = Guid.NewGuid(),
+                            UserId = attendance.AppId,
+                            AttendanceDate = currentDate,
+                            CheckIn = attendance.CheckIn
+                        });
+                    }
+                    else
+                    {
+                        data.CheckIn = attendance.CheckIn;
+                        data.CheckOut = null;
+                    }
+                    dataContext.SaveChanges();
+
+                    responses = new ResponsesWithData(true, null!, "Check-In Success!");
+                }
+
             }
             catch (Exception ex)
             {
@@ -55,7 +72,7 @@ namespace QualLMS.API.Repositories
             {
                 DateOnly currentDate = new DateOnly(attendance.CurrentDate.Year, attendance.CurrentDate.Month, attendance.CurrentDate.Day);
 
-                var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.AppUserId == attendance.AppId);
+                var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.UserId == attendance.AppId);
 
                 if (data == null)
                 {
@@ -90,7 +107,7 @@ namespace QualLMS.API.Repositories
             List<Attendance> data = new List<Attendance>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString()).OrderBy(o => o.AttendanceDate).ToList();
+                data = dataContext.Attendance.Where(o => o.UserId == Id.ToString()).OrderBy(o => o.AttendanceDate).ToList();
 
                 if (data == null)
                 {
@@ -117,11 +134,11 @@ namespace QualLMS.API.Repositories
             {
                 data = (from usr in userManager.Users.Where(o => o.OrganizationId == OrgId)
                            join att in dataContext.Attendance
-                           on usr.Id equals att.AppUserId
+                           on usr.Id equals att.UserId
                            select new AttendanceData
                            {
                                Id = att.Id.ToString(),
-                               AppId = att.AppUserId,
+                               AppId = att.UserId,
                                CurrentDate = DateTime.Parse(att.AttendanceDate.ToString()!),
                                CheckIn = att.CheckIn,
                                CheckOut = att.CheckOut,
@@ -153,7 +170,7 @@ namespace QualLMS.API.Repositories
             Attendance data = new Attendance();
             try
             {
-                data = dataContext.Attendance.FirstOrDefault(o => o.AppUserId == Id.ToString() && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
+                data = dataContext.Attendance.FirstOrDefault(o => o.UserId == Id.ToString() && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
 
                 if (data == null)
                 {
@@ -178,7 +195,7 @@ namespace QualLMS.API.Repositories
             List<Attendance> data = new List<Attendance>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.AppUserId == Id.ToString() && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
+                data = dataContext.Attendance.Where(o => o.UserId == Id.ToString() && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
 
                 if (data == null)
                 {

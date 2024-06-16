@@ -229,7 +229,7 @@ namespace QualLMS.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     AttendanceDate = table.Column<DateOnly>(type: "date", nullable: false),
                     CheckIn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckOut = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -238,8 +238,8 @@ namespace QualLMS.API.Migrations
                 {
                     table.PrimaryKey("PK_Attendance", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Attendance_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_Attendance_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -392,9 +392,9 @@ namespace QualLMS.API.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Attendance_AppUserId",
+                name: "IX_Attendance_UserId",
                 table: "Attendance",
-                column: "AppUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Calendar_CourseId",

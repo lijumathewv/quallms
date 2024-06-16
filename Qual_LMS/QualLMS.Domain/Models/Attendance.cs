@@ -10,8 +10,8 @@ namespace QualLMS.Domain.Models
 
         [Required]
         [StringLength(450)]
-        public string AppUserId { get; set; } = string.Empty;
-        public virtual User AppUser { get; set; } = null!;
+        public string UserId { get; set; } = string.Empty;
+        public virtual User? User { get; set; }
 
         [Required]
         [DataType(DataType.Date)]

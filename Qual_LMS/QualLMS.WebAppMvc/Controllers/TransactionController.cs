@@ -12,294 +12,354 @@ namespace QualLMS.WebAppMvc.Controllers
         [HttpGet("StudentCourse")]
         public IActionResult StudentCourseList()
         {
-            if (logger.IsLogged)
+            try
             {
-                if (TempData["IsError"] != null)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = TempData["IsError"];
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                    if (TempData["IsError"] != null)
+                    {
+                        ViewBag.IsError = TempData["IsError"];
+                        ViewBag.ErrorMessage = logger.ErrorMessage;
+                    }
+                    if (TempData["IsSuccess"] != null)
+                    {
+                        ViewBag.IsSuccess = TempData["IsSuccess"];
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
+
+                    var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all?OrgId=" + logger.LoginDetails.OrganizationId);
+
+                    return View(data);
                 }
-                if (TempData["IsSuccess"] != null)
+                else
                 {
-                    ViewBag.IsSuccess = TempData["IsSuccess"];
-                    ViewBag.SuccessMessage = "Data updated successfully!";
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
-                var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all?OrgId=" + logger.LoginDetails.OrganizationId);
-
-                return View(data);
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                logger.GenerateException(ex);
+                return View(new List<StudentCourseData>());
             }
         }
 
         [HttpGet("AddStudentCourse")]
         public IActionResult AddStudentCourse(string Id)
         {
-            if (logger.IsLogged)
+            try
             {
-                if (TempData["IsError"] != null)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = TempData["IsError"];
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
-                }
-                if (TempData["IsSuccess"] != null)
-                {
-                    ViewBag.IsSuccess = TempData["IsSuccess"];
-                    ViewBag.SuccessMessage = "Data updated successfully!";
-                }
+                    if (TempData["IsError"] != null)
+                    {
+                        ViewBag.IsError = TempData["IsError"];
+                        ViewBag.ErrorMessage = logger.ErrorMessage;
+                    }
 
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    var data = client.ExecutePostAPI<StudentCourseData>("StudentCourse/getsingle?Id=" + Id);
+                    if (TempData["IsSuccess"] != null)
+                    {
+                        ViewBag.IsSuccess = TempData["IsSuccess"];
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
 
-                    return View(data);
+                    if (!string.IsNullOrEmpty(Id))
+                    {
+                        var data = client.ExecutePostAPI<StudentCourseData>("StudentCourse/getsingle?Id=" + Id);
+
+                        return View(data);
+                    }
+                    else
+                    {
+                        return View(new StudentCourseData());
+                    }
+
                 }
                 else
                 {
-                    return View(new StudentCourseData());
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                ViewBag.IsError = TempData["IsError"];
+                ViewBag.ErrorMessage = logger.ErrorMessage;
+                logger.GenerateException(ex);
+                return View(new StudentCourseData());
             }
         }
 
         [HttpPost("AddStudentCourse")]
         public IActionResult AddStudentCourse(StudentCourseData Model)
         {
-            if (logger.IsLogged)
+            try
             {
-                Model.OrganizationId = logger.LoginDetails!.OrganizationId;
-
-                var data = client.ExecutePostAPI<ResultCommon>("StudentCourse/add", JsonSerializer.Serialize(Model));
-
-                if (data.Error)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = data.Error;
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
-                }
-                if (!data.Error)
-                {
+                    Model.OrganizationId = logger.LoginDetails!.OrganizationId;
+
+                    var data = client.ExecutePostAPI<ResultCommon>("StudentCourse/add", JsonSerializer.Serialize(Model));
+
+                    if (data.Error)
+                    {
+                        throw new Exception(data.Message);
+                    }
+
                     ViewBag.IsSuccess = !data.Error;
                     ViewBag.SuccessMessage = "Data updated successfully!";
-                }
 
-                if (data.Error)
-                {
-                    return View(Model);
+                    return RedirectToActionPermanent("StudentCourseList");
                 }
                 else
                 {
-                    return View(new StudentCourseData());
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                ViewBag.IsError = true;
+                ViewBag.ErrorMessage = logger.ErrorMessage;
+                logger.GenerateException(ex);
+                return View(Model);
             }
         }
 
         [HttpGet("Receipts")]
         public IActionResult FeesReceived()
         {
-            if (logger.IsLogged)
+            try
             {
-                if (TempData["IsError"] != null)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = TempData["IsError"];
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                    if (TempData["IsError"] != null)
+                    {
+                        ViewBag.IsError = TempData["IsError"];
+                        ViewBag.ErrorMessage = logger.ErrorMessage;
+                    }
+                    if (TempData["IsSuccess"] != null)
+                    {
+                        ViewBag.IsSuccess = TempData["IsSuccess"];
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
+
+                    var data = client.ExecutePostAPI<List<FeesReceivedData>>("FeesReceived/all");
+
+                    return View(data);
                 }
-                if (TempData["IsSuccess"] != null)
+                else
                 {
-                    ViewBag.IsSuccess = TempData["IsSuccess"];
-                    ViewBag.SuccessMessage = "Data updated successfully!";
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
-                var data = client.ExecutePostAPI<List<FeesReceivedData>>("FeesReceived/all");
-
-                return View(data);
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                logger.GenerateException(ex);
+                return View(new List<FeesReceivedData>());
             }
         }
 
         [HttpGet("AddReceipts")]
         public IActionResult AddFeesReceived(string Id)
         {
-            if (logger.IsLogged)
+            try
             {
-                if (TempData["IsError"] != null)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = TempData["IsError"];
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
-                }
-                if (TempData["IsSuccess"] != null)
-                {
-                    ViewBag.IsSuccess = TempData["IsSuccess"];
-                    ViewBag.SuccessMessage = "Data updated successfully!";
-                }
+                    if (TempData["IsError"] != null)
+                    {
+                        ViewBag.IsError = TempData["IsError"];
+                        ViewBag.ErrorMessage = logger.ErrorMessage;
+                    }
+                    if (TempData["IsSuccess"] != null)
+                    {
+                        ViewBag.IsSuccess = TempData["IsSuccess"];
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
 
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    var data = client.ExecutePostAPI<FeesReceivedData>("FeesReceived/getsingle?Id=" + Id);
+                    if (!string.IsNullOrEmpty(Id))
+                    {
+                        var data = client.ExecutePostAPI<FeesReceivedData>("FeesReceived/getsingle?Id=" + Id);
 
-                    return View(data);
+                        return View(data);
+                    }
+                    else
+                    {
+                        DateOnly date;
+                        DateOnly.TryParse(DateTime.Today.ToString(), out date);
+
+                        return View(new FeesReceivedData() { ReceiptDate = date });
+                    }
+
                 }
                 else
                 {
-                    DateOnly date;
-                    DateOnly.TryParse(DateTime.Today.ToString(), out date);
-
-                    return View(new FeesReceivedData() { ReceiptDate = date });
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                logger.GenerateException(ex);
+                return View(new FeesReceivedData());
             }
         }
 
         [HttpPost("AddReceipts")]
         public IActionResult AddFeesReceived(FeesReceivedData Model)
         {
-            if (logger.IsLogged)
+            try
             {
-                Model.OrganizationId = logger.LoginDetails.OrganizationId;
-                //Model.UserId = logger.LoginDetails.Id;
-                Model.Mode = PaymentMode.Cash;
-                Model.ModeDetails = "Received in Cash";
-
-                var data = client.ExecutePostAPI<ResultCommon>("FeesReceived/add", JsonSerializer.Serialize(Model));
-
-                if (data.Error)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = data.Error;
-                    ViewBag.ErrorMessage = data.Message;
-                    if (data.ApiError != null)
+                    Model.OrganizationId = logger.LoginDetails.OrganizationId;
+
+                    Model.Mode = PaymentMode.Cash;
+                    Model.ModeDetails = "Received in Cash";
+
+                    var data = client.ExecutePostAPI<ResultCommon>("FeesReceived/add", JsonSerializer.Serialize(Model));
+
+                    if (data.Error)
                     {
-                        ViewBag.ErrorMessage += "<br/>" + logger.ParseAPIError(data.ApiError);
+                        ViewBag.IsError = data.Error;
+                        ViewBag.ErrorMessage = data.Message;
+                        if (data.ApiError != null)
+                        {
+                            ViewBag.ErrorMessage += "<br/>" + logger.ParseAPIError(data.ApiError);
+                        }
+                        throw new Exception(ViewBag.ErrorMessage);
                     }
-                }
-                if (!data.Error)
-                {
-                    ViewBag.IsSuccess = !data.Error;
-                    ViewBag.SuccessMessage = "Data updated successfully!";
-                }
+                    if (!data.Error)
+                    {
+                        ViewBag.IsSuccess = !data.Error;
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
 
-                if (data.Error)
-                {
-                    return View(Model);
+                    return View(new FeesReceivedData());
+
                 }
                 else
                 {
-                    return View(new FeesReceivedData());
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                ViewBag.IsError = true;
+                ViewBag.ErrorMessage = ex.Message;
+                logger.GenerateException(ex);
+                return View(Model);
             }
         }
 
         [HttpGet("TeacherCalendar")]
         public IActionResult TeacherCalendarList()
         {
-            if (logger.IsLogged)
+            try
             {
-                if (TempData["IsError"] != null)
+                if (logger.IsLogged)
                 {
-                    ViewBag.IsError = TempData["IsError"];
-                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                    if (TempData["IsError"] != null)
+                    {
+                        ViewBag.IsError = TempData["IsError"];
+                        ViewBag.ErrorMessage = logger.ErrorMessage;
+                    }
+                    if (TempData["IsSuccess"] != null)
+                    {
+                        ViewBag.IsSuccess = TempData["IsSuccess"];
+                        ViewBag.SuccessMessage = "Data updated successfully!";
+                    }
+
+                    var data = client.ExecutePostAPI<List<CalendarData>>("Calendar/all?OrgId=" + logger.LoginDetails.OrganizationId);
+
+                    return View(data);
                 }
-                if (TempData["IsSuccess"] != null)
+                else
                 {
-                    ViewBag.IsSuccess = TempData["IsSuccess"];
-                    ViewBag.SuccessMessage = "Data updated successfully!";
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
-                var data = client.ExecutePostAPI<List<CalendarData>>("Calendar/all?OrgId=" + logger.LoginDetails.OrganizationId);
-
-                return View(data);
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                ViewBag.IsError = true;
+                ViewBag.ErrorMessage = ex.Message;
+
+                logger.GenerateException(ex);
+                return View(new List<CalendarData>());
             }
         }
 
         [HttpPost("AddCalendar")]
         public IActionResult AddTeacherCalendar(IFormCollection form)
         {
-            if (logger.IsLogged)
+            try
             {
-                string TeacherId = string.Empty;
-                Guid CourseId = Guid.Empty;
-                Guid CalendarId = Guid.Empty;
-                if (!string.IsNullOrEmpty(form["CalendarId"]))
+                if (logger.IsLogged)
                 {
-                    CalendarId = new Guid(form["CalendarId"].ToString());
-                }
-
-                if (!string.IsNullOrEmpty(form["TeacherId"]))
-                {
-                    TeacherId = form["TeacherId"].ToString();
-                }
-                else
-                {
-                    logger.IsError = true;
-                    logger.ErrorMessage = "Teacher not selected!";
-                }
-
-
-                if (!string.IsNullOrEmpty(form["CourseId"]))
-                {
-                    CourseId = new Guid(form["CourseId"].ToString());
-                }
-                else
-                {
-                    logger.IsError = true;
-                    logger.ErrorMessage += "<br/>Course not selected!";
-                }
-
-                if (!logger.IsError)
-                {
-                    var model = new CalendarData
+                    string TeacherId = string.Empty;
+                    Guid CourseId = Guid.Empty;
+                    Guid CalendarId = Guid.Empty;
+                    if (!string.IsNullOrEmpty(form["CalendarId"]))
                     {
-                        Id = CalendarId,
-                        TeacherId = TeacherId,
-                        CourseId = CourseId,
-                        OrganizationId = logger.LoginDetails.OrganizationId,
-                        Date = DateOnly.Parse(form["Date"].ToString()),
-                        StartTime = TimeOnly.Parse(form["StartTime"].ToString()),
-                        EndTime = TimeOnly.Parse(form["EndTime"].ToString())
-                    };
+                        CalendarId = new Guid(form["CalendarId"].ToString());
+                    }
 
-                    var data = client.ExecutePostAPI<ResultCommon>("Calendar/add", JsonSerializer.Serialize(model));
+                    if (!string.IsNullOrEmpty(form["TeacherId"]))
+                    {
+                        TeacherId = form["TeacherId"].ToString();
+                    }
+                    else
+                    {
+                        logger.IsError = true;
+                        logger.ErrorMessage = "Teacher not selected!";
+                    }
 
-                    TempData["IsError"] = data.Error;
-                    TempData["IsSuccess"] = !data.Error;
+
+                    if (!string.IsNullOrEmpty(form["CourseId"]))
+                    {
+                        CourseId = new Guid(form["CourseId"].ToString());
+                    }
+                    else
+                    {
+                        logger.IsError = true;
+                        logger.ErrorMessage += "<br/>Course not selected!";
+                    }
+
+                    if (!logger.IsError)
+                    {
+                        var model = new CalendarData
+                        {
+                            Id = CalendarId,
+                            TeacherId = TeacherId,
+                            CourseId = CourseId,
+                            OrganizationId = logger.LoginDetails.OrganizationId,
+                            Date = DateOnly.Parse(form["Date"].ToString()),
+                            StartTime = TimeOnly.Parse(form["StartTime"].ToString()),
+                            EndTime = TimeOnly.Parse(form["EndTime"].ToString())
+                        };
+
+                        var data = client.ExecutePostAPI<ResultCommon>("Calendar/add", JsonSerializer.Serialize(model));
+
+                        TempData["IsError"] = data.Error;
+                        TempData["IsSuccess"] = !data.Error;
+                    }
+                    else
+                    {
+                        throw new Exception(logger.ErrorMessage);
+                    }
+
+                    return RedirectToActionPermanent("TeacherCalendarList");
                 }
                 else
                 {
-                    TempData["IsError"] = logger.IsError;
-                    TempData["IsSuccess"] = !logger.IsError;
+                    return RedirectToActionPermanent("Index", "Login");
                 }
-
-                return RedirectToActionPermanent("TeacherCalendarList");
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                TempData["IsError"] = true;
+                TempData["IsSuccess"] = false;
+                logger.ErrorMessage = ex.Message;
+
+                logger.GenerateException(ex);
+                return RedirectToActionPermanent("TeacherCalendarList");
             }
         }
     }

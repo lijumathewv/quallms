@@ -88,15 +88,5 @@ namespace QualLMS.API.Repositories
                 return new ResponsesWithData(false, "", "Error Occured!");
             }
         }
-
-        public ServiceResponse.ResponsesWithData GetStudents(string Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ServiceResponse.ResponsesWithData GetTeachers(string Id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

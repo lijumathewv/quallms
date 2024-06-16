@@ -161,11 +161,6 @@ namespace QualLMS.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateOnly?>("AttendanceDate")
                         .IsRequired()
                         .HasColumnType("date");
@@ -177,11 +172,16 @@ namespace QualLMS.API.Migrations
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Attendance");
+                    b.ToTable("Attendance", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.Calendar", b =>
@@ -217,7 +217,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Calendar");
+                    b.ToTable("Calendar", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.Course", b =>
@@ -240,7 +240,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("Course");
+                    b.ToTable("Course", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.Fees", b =>
@@ -260,7 +260,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("Fees");
+                    b.ToTable("Fees", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.FeesReceived", b =>
@@ -309,7 +309,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FeesReceived");
+                    b.ToTable("FeesReceived", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.Organization", b =>
@@ -344,7 +344,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Organization");
+                    b.ToTable("Organization", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.StudentCourse", b =>
@@ -384,7 +384,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("StudentCourse");
+                    b.ToTable("StudentCourse", (string)null);
                 });
 
             modelBuilder.Entity("QualLMS.Domain.Models.User", b =>
@@ -527,7 +527,7 @@ namespace QualLMS.API.Migrations
                 {
                     b.HasOne("QualLMS.Domain.Models.User", "AppUser")
                         .WithMany("Attendances")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

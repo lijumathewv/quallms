@@ -12,8 +12,8 @@ using QualLMS.API.Data;
 namespace QualLMS.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240615185146_InitialData")]
-    partial class InitialData
+    [Migration("20240616071252_Attendance01")]
+    partial class Attendance01
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,11 +164,6 @@ namespace QualLMS.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateOnly?>("AttendanceDate")
                         .IsRequired()
                         .HasColumnType("date");
@@ -179,6 +174,11 @@ namespace QualLMS.API.Migrations
 
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -202,6 +202,9 @@ namespace QualLMS.API.Migrations
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
 
@@ -212,6 +215,8 @@ namespace QualLMS.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("UserId");
 
@@ -540,6 +545,12 @@ namespace QualLMS.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("QualLMS.Domain.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("QualLMS.Domain.Models.User", "Teacher")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -547,6 +558,8 @@ namespace QualLMS.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
+
+                    b.Navigation("Organization");
 
                     b.Navigation("Teacher");
                 });

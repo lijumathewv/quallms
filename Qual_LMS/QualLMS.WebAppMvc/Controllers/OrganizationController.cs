@@ -12,57 +12,74 @@ namespace QualLMS.WebAppMvc.Controllers
     {
         public IActionResult Index()
         {
-            if (logger.IsLogged)
+            try
             {
-                var data = client.ExecutePostAPI<List<Organization>>("Organization/all");
-                return View(data);
+                if (logger.IsLogged)
+                {
+                    var data = client.ExecutePostAPI<List<Organization>>("Organization/all");
+                    return View(data);
+                }
+                else
+                {
+                    return RedirectToActionPermanent("Index", "Login");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                logger.GenerateException(ex);
+                return View(new List<Organization>());
             }
         }
 
         public IActionResult Add(string Id)
         {
-            if (logger.IsLogged)
+            try
             {
-                Organization Model = new Organization();
-                if (!string.IsNullOrEmpty(Id))
+                if (logger.IsLogged)
                 {
-                    Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
+                    Organization Model = new Organization();
+                    if (!string.IsNullOrEmpty(Id))
+                    {
+                        Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
+                    }
+                    return View(Model);
                 }
-                return View(Model);
+                else
+                {
+                    return RedirectToActionPermanent("Index", "Login");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return RedirectToActionPermanent("Index", "Login");
+                logger.GenerateException(ex);
+                return View(new Organization());
             }
         }
 
         [HttpPost]
         public IActionResult Add(Organization model)
         {
-            string json = JsonSerializer.Serialize(model);
-
-            var res = client.ExecutePostAPI<ResultCommon>("organization/add", json);
-
-            //ResultCommon res = JsonSerializer.Deserialize<ResultCommon>(response)!;
-            //logger.IsError = !res.Flag;
-            //logger.IsSuccess = res.Flag;
-
-            logger.IsError = res.Error;
-            logger.IsSuccess = !res.Error;
-
-            if (res.Error)
+            try
             {
-                logger.ErrorMessage = res.Message;
-            }
-            else
-            {
+                string json = JsonSerializer.Serialize(model);
+
+                var res = client.ExecutePostAPI<ResultCommon>("organization/add", json);
+
+                logger.IsError = res.Error;
+                logger.IsSuccess = !res.Error;
+
+                if (res.Error)
+                {
+                    throw new Exception(res.Message);
+                }
                 logger.SuccessMessage = res.Message;
+                return View(model);
             }
-            return View(model);
+            catch (Exception ex)
+            {
+                logger.GenerateException(ex);
+                return View(model);
+            }
         }
     }
 }

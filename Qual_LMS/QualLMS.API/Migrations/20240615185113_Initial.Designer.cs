@@ -164,7 +164,7 @@ namespace QualLMS.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AppUserId")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
@@ -182,7 +182,7 @@ namespace QualLMS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Attendance");
                 });
@@ -525,7 +525,7 @@ namespace QualLMS.API.Migrations
                 {
                     b.HasOne("QualLMS.Domain.Models.User", "AppUser")
                         .WithMany("Attendances")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

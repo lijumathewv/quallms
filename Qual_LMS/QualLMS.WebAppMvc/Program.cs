@@ -1,5 +1,6 @@
 using QualLMS.WebAppMvc.Models;
 using QualvationLibrary;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,13 +9,24 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(20); // Adjust timeout as needed
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
 builder.Services.AddSingleton<CustomLogger>();
 builder.Services.AddSingleton<Client>();
+
+//Configure Logging
+var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+Log.Logger = new LoggerConfiguration()
+     .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(new CustomFormatter(), "logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -34,6 +46,9 @@ app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ClientIpEnricherMiddleware>();
+app.UseSerilogRequestLogging(); // Add Serilog request logging
 
 app.MapControllerRoute(
     name: "default",

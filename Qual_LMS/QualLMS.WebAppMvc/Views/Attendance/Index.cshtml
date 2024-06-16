@@ -3,204 +3,218 @@
 @using QualLMS.Domain.Models
 @using QualvationLibrary
 
-@inject CustomLogger logger
-@{
-    string AttendanceURL = string.Empty;
-    string AttendanceOrgURL = string.Empty;
-    string NowURL = string.Empty;
-    string CheckInURL = string.Empty;
-    string CheckOutURL = string.Empty;
+@model List<AttendanceData>
 
-    AttendanceURL = logger.BaseURL + "Attendance/list-all-attendance?Id=" + logger.LoginDetails!.Id;
-    AttendanceOrgURL = logger.BaseURL + "Attendance/list-allorg-attendance?Id=" + logger.LoginDetails!.OrganizationId;
-    NowURL = logger.BaseURL + "Attendance/todays-attendance?Id=" + logger.LoginDetails!.Id;
-    CheckInURL = logger.BaseURL + "Attendance/checkin";
-    CheckOutURL = logger.BaseURL + "Attendance/checkout";
+@inject CustomLogger logger
+
+@{
+    var data = JsonSerializer.Serialize(Model);
 
     Roles CurrentRole = Roles.None;
     Enum.TryParse<Roles>(logger.LoginDetails.Role, out CurrentRole);
+
+    bool IsError = false;
+    string ErrorMessage = "";
+    string SuccessMessage = "";
+
+    if (ViewBag.IsError != null)
+    {
+        IsError = logger.IsError;
+        ErrorMessage = logger.ErrorMessage;
+    }
+    bool IsSuccess = false;
+    if (ViewBag.IsSuccess != null)
+    {
+        IsSuccess = logger.IsSuccess;
+        SuccessMessage = logger.SuccessMessage;
+    }
 }
 
-<!-- main-heading -->
 <h2 class="main-title-w3layouts mb-2 text-center">Attendance</h2>
-<!--// main-heading -->
 
-<section id="carouselSection" class="carousels-section">
-    <div class="outer-w3-agile mt-3">
-        <div class="w3_agile_map">
-            <div class="d-sm-flex justify-content-between map-buttons">
-                <button id="checkin-btn" class="w3ls_button bg-success">CheckIn</button>&nbsp;&nbsp;
-                <button id="checkout-btn" class="w3ls_button bg-primary">CheckOut</button>
-            </div>
-        </div>
+
+<div class="form-row">
+    <div class="col-md-12 md-3">
+        <button id="checkin-btn" class="btn btn-success" name="checkin-btn" onclick="Checkin()">Check In</button>&nbsp;&nbsp;
+        <button id="checkout-btn" class="btn btn-primary" name="checkout-btn" onclick="Checkout()">Check Out</button>&nbsp;&nbsp;
     </div>
-</section>
 
-<div class="outer-w3-agile mt-12">
-    <div class="table-responsive">
-        <table id="dg" title="My Attendance" class="easyui-datagrid" style="width:98%;height:300px"
-               data-options="singleSelect:true,collapsible:true,pagination:true">
-            <thead>
-                <tr>
-                    <th data-options="field:'serial', width:'5%',formatter:serialFormatter">#</th>
-                    <th data-options="field:'id', width:'35%'">Attendance Id</th>
-                    <th data-options="field:'attendanceDate', width:'20%',align:'center',formatter:formatDate">Attendance Date</th>
-                    <th data-options="field:'checkIn', width:'18%',align:'center',formatter:formatTime">Check - In</th>
-                    <th data-options="field:'checkOut', width:'18%',align:'center',formatter:formatTime">Check - Out</th>
-                </tr>
-            </thead>
-        </table>
+    <div class="col-md-12 md-3">
+        &nbsp;
     </div>
 </div>
-@switch (CurrentRole)
-{
-    case Roles.Admin:
-    case Roles.SuperAdmin:
-        <div class="outer-w3-agile mt-12">
-            <div class="table-responsive">
-                <table id="dgOrg" title="Organization Attendance" class="easyui-datagrid" style="width:98%;height:300px"
-                       data-options="singleSelect:true,collapsible:true,pagination:true">
-                    <thead>
-                        <tr>
-                            <th data-options="field:'serial', width:'5%',formatter:serialFormatter">#</th>
-                            <th data-options="field:'fullName', width:'35%'">Full Name</th>
-                            <th data-options="field:'attendanceDate', width:'20%',align:'center',formatter:formatDate">Attendance Date</th>
-                            <th data-options="field:'checkIn', width:'20%',align:'center',formatter:formatTime">Check - In</th>
-                            <th data-options="field:'checkOut', width:'20%',align:'center',formatter:formatTime">Check - Out</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-        break;
+
+<div class="form-row">
+    <div id="dangerdiv" class="alert alert-danger" role="alert" style="visibility:hidden">
+        <p id="dangermsg"></p>
+    </div>
+    <div id="successdiv" class="alert alert-success" role="alert" style="visibility:hidden">
+        <p id="successmsg"></p>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-md-12 md-3">
+        <div id="myGrid" class="ag-theme-quartz" style="height: 500px"></div>
+    </div>
+</div>
+
+
+
+@section StylesAndScripts {
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 }
 
-
 @section Scripts {
-    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
-    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
-    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
-    @switch (CurrentRole)
-    {
-        case Roles.Admin:
-        case Roles.SuperAdmin:
-            {
-                <script>
-                    $.ajax({
-                        type: 'POST',
-                        url: '@AttendanceOrgURL',
-                        contentType: 'application/json',
-                        success: function (response) {
-                            $('#dgOrg').datagrid('loadData', response.returnData);
-                        },
-                        error: function (error) {
-                            console.error('Error fetching data:', error);
-                        }
-                    });
-                </script>
 
-                break;
-            }
-    }
-
-    <!--Script to get the Attendance Data-->
     <script>
-        $.ajax({
-            type: 'POST',
-            url: '@AttendanceURL',
-            contentType: 'application/json',
-            success: function (response) {
-                $('#dg').datagrid('loadData', response.returnData);
-            },
-            error: function (error) {
-                console.error('Error fetching data:', error);
-            }
-        });
+        function Checkin() {
+            console.log("Check-in");
+            var currentDateTime = new Date();
+            // var offset = currentDateTime.getTimezoneOffset() * 60000; // Convert offset to milliseconds
+            // var istOffset = 5.5 * 3600000; // IST offset in milliseconds
+            // var istTime = new Date(currentDateTime.getTime() + istOffset - offset);
 
+            var istDate = currentDateTime.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', hour12: false });
+            console.log('IST date:', istDate);
 
-        $.ajax({
-            type: 'POST',
-            url: '@NowURL',
-            contentType: 'application/json',
-            success: function (response) {
-                if (!response.flag) {
-                    $('#checkin-btn').prop('disabled', false);
-                    $('#checkin-btn').show();
+            const formData = new FormData();
+            formData.append("AppId", '@logger.LoginDetails.Id')
+            formData.append("CurrentDate", istDate)
+            formData.append("CheckIn", istDate)
 
-                    $('#checkout-btn').prop('disabled', true);
-                    $('#checkout-btn').hide();
+            console.log(formData);
+
+            const url = '@logger.BaseURL' + '/Attendance/CheckIn';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: formData,
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (error) {
+                    console.error(error);
                 }
-                else {
-                    var data = response.returnData;
-                    if (data.checkOut == null) {
-                        $('#checkout-btn').prop('disabled', false);
-                        $('#checkout-btn').show();
+            });
+        }
 
-                        $('#checkin-btn').prop('disabled', true);
-                        $('#checkin-btn').hide();
-                    }
-                    else {
-                        if (data.checkOut != null && data.checkIn != null) {
-                            $('#carouselSection').hide();
+        function Checkout() {
+            console.log("Check-out");
+        }
+
+        $(document).ready(function () {
+            console.log("ready!");
+            var model = @Html.Raw(data);
+
+            let gridApi;
+
+            // Grid Options: Contains all of the data grid configurations
+            var gridOptions = {
+                suppressRowTransform: true,
+                autoSizeStrategy: {
+                    type: 'fitCellContents'
+                },
+                overlayNoRowsTemplate:
+                    '<span style="padding: 10px; border: 2px solid #444; background: lightgoldenrodyellow; color: red;">No Data Available</span>',
+                // Row Data: The data to be displayed.
+                rowData: model,
+                // Column Definitions: Defines the columns to be displayed.
+                columnDefs: [
+                    { headerName: 'ID', field: 'Id', pinned: "left" },
+                    { headerName: 'FeesName', field: 'FeesName', pinned: "left" },
+                    {
+                        headerName: '',
+                        cellRenderer: function (params) {
+                            var anchor = document.createElement('a');
+                            var data = params.data;
+
+                            var icon = document.createElement('i');
+                            anchor.title = "Edit Fees Details!"
+                            anchor.href = '#'; // Replace with your actual URL
+
+                            anchor.setAttribute('data-toggle', 'modal');
+                            anchor.setAttribute('data-target', '#UpdateModal');
+
+                            icon.className = 'fa fa-edit'; // Font Awesome class for edit icon
+
+                            anchor.appendChild(icon);
+                            anchor.addEventListener('click', function (event) {
+                                console.log(data.Id);
+                                $('#FeesId').val(data.Id);
+                                $('#FeesName').val(data.FeesName);
+
+                                console.log(document.getElementById("FeesId").value);
+                            });
+
+                            return anchor;
                         }
-                    }
-                }
-            },
-            error: function (error) {
-                console.error('Error fetching data:', error);
+                    },
+                    // {
+                    //     headerName: '',
+                    //     cellRenderer: function (params) {
+                    //         var anchor = document.createElement('a');
+                    //         var data = params.data;
+                    //         var icon = document.createElement('i');
+
+                    //         anchor.title = "SURGERY DETAILS!"
+                    //         anchor.href = 'Surgery?Id=' + data.Id; // Replace with your actual URL
+                    //         icon.className = 'fa fa-medkit'; // Font Awesome class for edit icon
+                    //         icon.style = "color:red";
+
+                    //         anchor.appendChild(icon);
+                    //         anchor.addEventListener('click', function (event) {
+                    //             // console.log("Surgery?Id=" + data.Id);
+                    //             // window.location.href = "Surgery?Id=" + data.Id;
+                    //         });
+
+                    //         return anchor;
+                    //     }
+                    // },
+                    // {
+                    //     headerName: '',
+                    //     cellRenderer: function (params) {
+                    //         var anchor = document.createElement('a');
+                    //         var data = params.data;
+                    //         //console.log(data.IsDischarge);
+
+                    //         var icon = document.createElement('i');
+                    //         anchor.title = "ADD DISCHARGE DETAILS!"
+                    //         anchor.href = 'addbook?Id=' + data.Id + '&discharge=yes'; // Replace with your actual URL
+                    //         icon.className = 'lnr lnr-exit'; // Font Awesome class for edit icon
+                    //         icon.style = "color:green";
+
+                    //         anchor.appendChild(icon);
+                    //         anchor.addEventListener('click', function (event) {
+
+                    //         });
+
+                    //         return anchor;
+                    //     }
+                    // }
+                ]
+            };
+
+            // Your Javascript code to create the data grid
+            const myGridElement = document.querySelector('#myGrid');
+            gridApi = agGrid.createGrid(myGridElement, gridOptions);
+
+            function getBoolean(id) {
+                var field = document.querySelector("#" + id);
+
+                return !!field.checked;
             }
-        });
 
-        $('#checkin-btn').on('click', function () {
-            var myObject = {
-                appUserId: '@logger.LoginDetails.Id',
-                attendanceDate: new Date(),
-                checkIn: new Date()
+            function getParams() {
+                return {
+                    allColumns: true,
+                };
+            }
+            window.exportToCsv = function () {
+                gridApi.exportDataAsCsv(getParams());
             };
-
-            $.ajax({
-                type: 'POST',
-                url: '@CheckInURL',
-                contentType: 'application/json',
-                data: JSON.stringify(myObject),
-                success: function (response) {
-                    if (!response.flag) {
-                        alert(response.message);
-                    }
-                    else {
-                        location.reload();
-                    }
-                },
-                error: function (error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-        });
-
-        $('#checkout-btn').on('click', function () {
-            var myObject = {
-                appUserId: '@logger.LoginDetails.Id',
-                attendanceDate: new Date(),
-                checkOut: new Date()
-            };
-
-            $.ajax({
-                type: 'POST',
-                url: '@CheckOutURL',
-                contentType: 'application/json',
-                data: JSON.stringify(myObject),
-                success: function (response) {
-                    if (!response.flag) {
-                        alert(response.message);
-                    }
-                    else {
-                        location.reload();
-                    }
-                },
-                error: function (error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
         });
     </script>
 }

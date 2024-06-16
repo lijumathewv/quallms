@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using QualLMS.WebAppMvc.Models;
 using QualvationLibrary;
@@ -11,6 +12,7 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             if (logger.IsLogged)
             {
+                logger.ClearMessages();
                 return View();
             }
             else
@@ -21,6 +23,7 @@ namespace QualLMS.WebAppMvc.Controllers
 
         public IActionResult Logout()
         {
+            logger.ClearMessages();
             logger.IsLogged = false;
             logger.LoginDetails = null!;
             return RedirectToAction("Index", "Login");
@@ -34,7 +37,11 @@ namespace QualLMS.WebAppMvc.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                Exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error
+            });
         }
     }
 }
