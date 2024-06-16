@@ -25,7 +25,7 @@ namespace QualLMS.API.Repositories
 
                 if (teacherrole == null)
                 {
-                    return new ResponsesWithData(false, "", "Role not found");
+                    return new ResponsesWithData(false, "", "Error Occurred! Role not found");
                 }
 
                 var users = await userManager.GetUsersInRoleAsync(role.ToString());
@@ -58,7 +58,7 @@ namespace QualLMS.API.Repositories
 
                 if (teacherrole == null)
                 {
-                    return new ResponsesWithData(false, "", "Role not found");
+                    return new ResponsesWithData(false, "", "Error Occurred! Role not found");
                 }
 
                 var users = await userManager.GetUsersInRoleAsync(role.ToString());
@@ -105,7 +105,7 @@ namespace QualLMS.API.Repositories
             catch (Exception ex)
             {
                 logger.GenerateException(ex);
-                return new ResponsesWithData(true, JsonSerializer.Serialize(new UserAllData()), ex.Message);
+                return new ResponsesWithData(true, JsonSerializer.Serialize(new UserAllData()), "Error Occurred! " + ex.Message);
             }
         }
 
@@ -139,7 +139,7 @@ namespace QualLMS.API.Repositories
             catch (Exception ex)
             {
                 logger.GenerateException(ex);
-                return new ResponsesWithData(true, JsonSerializer.Serialize(new UserAllData()), ex.Message);
+                return new ResponsesWithData(true, JsonSerializer.Serialize(new UserAllData()), "Error Occurred! " + ex.Message);
             }
         }
 
@@ -151,7 +151,7 @@ namespace QualLMS.API.Repositories
                 if (user == null)
                 {
                     // Handle user not found
-                    return new GeneralResponses(false, "User not found!");
+                    return new GeneralResponses(false, "Error Occurred! User not found!");
                 }
 
                 // Verify the old password
@@ -159,7 +159,7 @@ namespace QualLMS.API.Repositories
                 if (!isOldPasswordCorrect)
                 {
                     // Handle incorrect old password
-                    return new GeneralResponses(false, "Incorrect old password.");
+                    return new GeneralResponses(false, "Error Occurred! Incorrect old password.");
                 }
 
                 // Change the password
@@ -177,7 +177,7 @@ namespace QualLMS.API.Repositories
             catch (Exception ex)
             {
                 logger.GenerateException(ex);
-                return new GeneralResponses(false, ex.Message);
+                return new GeneralResponses(false, "Error Occurred! " + ex.Message);
             }
         }
 
@@ -185,7 +185,7 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                if (userModel is null) return new GeneralResponses(false, "Model is empty");
+                if (userModel is null) return new GeneralResponses(false, "Error Occurred! Model is empty");
                 var newUser = new User()
                 {
                     FullName = userModel.FullName,
@@ -197,12 +197,12 @@ namespace QualLMS.API.Repositories
                     CreatedAt = DateTime.Now
                 };
 
-                if (!Enum.IsDefined(typeof(Roles), userModel.RoleId)) return new GeneralResponses(false, "Invalid Role");
+                if (!Enum.IsDefined(typeof(Roles), userModel.RoleId)) return new GeneralResponses(false, "Error Occurred! Invalid Role");
 
                 string roleName = ((Roles)userModel.RoleId).ToString();
 
                 var user = await userManager.FindByEmailAsync(newUser.Email);
-                if (user is not null) return new GeneralResponses(false, "User registered already with this Email!");
+                if (user is not null) return new GeneralResponses(false, "Error Occurred! User registered already with this Email!");
 
                 var createUser = await userManager.CreateAsync(newUser!, userModel.Password);
                 if (!createUser.Succeeded)
@@ -223,7 +223,7 @@ namespace QualLMS.API.Repositories
                 {
                     if (checkAdmin!.Name == roleName && roleName == "SuperAdmin")
                     {
-                        return new GeneralResponses(false, "Invalid Role");
+                        return new GeneralResponses(false, "Error Occurred! Invalid Role");
                     }
                 }
 
@@ -249,7 +249,8 @@ namespace QualLMS.API.Repositories
             catch (Exception ex)
             {
                 logger.GenerateException(ex);
-                return new GeneralResponses(false, ex.Message);
+                
+                return new GeneralResponses(false, "Error Occurred! " + logger.GenerateDetailedException(ex));
             }
         }
 
@@ -264,7 +265,7 @@ namespace QualLMS.API.Repositories
                         Flag = true,
                         Token = null!,
                         Role = "None",
-                        Message = "Login container is empty"
+                        Message = "Error Occurred! Login container is empty"
                     });
 
                 var getUser = await userManager.FindByEmailAsync(Login.EmailId);
@@ -274,7 +275,7 @@ namespace QualLMS.API.Repositories
                         Flag = true,
                         Token = null!,
                         Role = "None",
-                        Message = "User not found"
+                        Message = "Error Occurred! User not found"
                     });
 
                 bool checkUserPasswords = await userManager.CheckPasswordAsync(getUser, Login.Password);
@@ -284,7 +285,7 @@ namespace QualLMS.API.Repositories
                         Flag = true,
                         Token = null!,
                         Role = "None",
-                        Message = "Invalid email/password"
+                        Message = "Error Occurred! Invalid email/password"
                     });
 
                 var getUserRole = await userManager.GetRolesAsync(getUser);
@@ -313,8 +314,8 @@ namespace QualLMS.API.Repositories
                     Flag = true,
                     Token = null!,
                     Role = "None",
-                    Message = "Invalid email/password"
-                });
+                    Message = "Error Occurred!" + ex.Message
+                }); ;
             }
         }
 

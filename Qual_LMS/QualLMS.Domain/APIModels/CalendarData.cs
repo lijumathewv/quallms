@@ -10,8 +10,7 @@ namespace QualLMS.Domain.APIModels
         public Guid Id { get; set; }
 
         [Required]
-        [StringLength(450)]
-        public string TeacherId { get; set; } = string.Empty;
+        public Guid TeacherId { get; set; }
 
         public string TeacherName { get; set; } = string.Empty;
 

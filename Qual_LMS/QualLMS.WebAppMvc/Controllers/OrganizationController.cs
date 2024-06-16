@@ -14,15 +14,8 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
-                {
-                    var data = client.ExecutePostAPI<List<Organization>>("Organization/all");
-                    return View(data);
-                }
-                else
-                {
-                    return RedirectToActionPermanent("Index", "Login");
-                }
+                var data = client.ExecutePostAPI<List<Organization>>("Organization/all");
+                return View(data);
             }
             catch (Exception ex)
             {
@@ -35,19 +28,12 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                Organization Model = new Organization();
+                if (!string.IsNullOrEmpty(Id))
                 {
-                    Organization Model = new Organization();
-                    if (!string.IsNullOrEmpty(Id))
-                    {
-                        Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
-                    }
-                    return View(Model);
+                    Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
                 }
-                else
-                {
-                    return RedirectToActionPermanent("Index", "Login");
-                }
+                return View(Model);
             }
             catch (Exception ex)
             {

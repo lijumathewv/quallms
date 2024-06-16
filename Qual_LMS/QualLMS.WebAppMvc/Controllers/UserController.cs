@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Models;
 using QualLMS.WebAppMvc.Models;
@@ -14,8 +15,7 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                Roles role = Roles.None;
-                Enum.TryParse<Roles>(logger.LoginDetails.Role, out role);
+                Roles role = logger.LoginDetails.Role;
 
                 if (role != Roles.Admin && role != Roles.SuperAdmin)
                 {
@@ -23,55 +23,61 @@ namespace QualLMS.WebAppMvc.Controllers
                 }
                 else
                 {
-                    if (logger.IsLogged)
-                    {
-                        var data = client.ExecutePostAPI<List<UserAllData>>("account/all?Id=" + logger.LoginDetails.OrganizationId.ToString());
-                        return View(data);
-                    }
-                    else
-                    {
-                        return RedirectToActionPermanent("Index", "Login");
-                    }
+                    var data = client.ExecutePostAPI<List<UserAllData>>("account/all?Id=" + logger.LoginDetails.OrganizationId.ToString());
+                    return View(data);
                 }
             }
             catch (Exception ex)
             {
                 logger.GenerateException(ex);
+                logger.ErrorMessage = logger.GenerateDetailedException(ex);
                 return View(new List<UserAllData>());
             }
         }
 
         public IActionResult Add(string Id)
         {
-            try
-            {
-                ViewBag.Role = Request.Query["RId"];
+            logger.ClearMessages();
+            AddUserAllData Model = new AddUserAllData();
 
-                if (logger.IsLogged)
-                {
-                    logger.ClearMessages();
-                    UserAllData Model = new UserAllData();
+            Roles LoginRole = logger.LoginDetails.Role;
+            Model.LoginRole = LoginRole;
 
-                    return View(Model);
-                }
-                else
-                {
-                    return RedirectToActionPermanent("Index", "Login");
-                }
-            }
-            catch (Exception ex)
+            Model.orgSelect = new SelectList(new List<Organization>());
+            if (LoginRole == Roles.SuperAdmin)
             {
-                logger.GenerateException(ex);
-                return View(new UserAllData());
+                var orgs = client.ExecutePostAPI<List<Organization>>("Organization/all");
+
+                Model.orgSelect = new SelectList(orgs, "Id", "FullName");
             }
+
+            Roles role = Roles.None;
+
+            if (Model.Id != Guid.Empty)
+            {
+                Enum.TryParse<Roles>(Model.Role, out role);
+                Model.role = role;
+                Model.RoleId = (int)role;
+            }
+            else
+            {
+                Model.RoleId = Convert.ToInt32(Request.Query["RId"]);
+                Model.role = (Roles)Model.RoleId;
+            }
+
+            return View(Model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(UserAllData model)
+        public async Task<IActionResult> Add(AddUserAllData model)
         {
             try
             {
-                ViewBag.Role = Request.Query["RId"];
+                if (model.OrganizationId == Guid.Empty)
+                {
+                    model.OrganizationId = logger.LoginDetails.OrganizationId;
+                }
+
                 string json = JsonSerializer.Serialize(model);
                 var res = client.ExecutePostAPI<ResultCommon>("account/registeraccount", json);
 
@@ -81,9 +87,10 @@ namespace QualLMS.WebAppMvc.Controllers
 
                 if (logger.IsError)
                 {
-                    string msg = res.Message;
+                    string msg;
                     if (res.ApiError != null)
                     {
+                        msg = res.ApiError.Title;
                         if (res.ApiError.Errors != null)
                         {
                             foreach (var er in res.ApiError.Errors)
@@ -97,6 +104,14 @@ namespace QualLMS.WebAppMvc.Controllers
                                 }
                             }
                         }
+                        else
+                        {
+                            msg = res.Message;
+                        }
+                    }
+                    else
+                    {
+                        msg = res.Message;
                     }
                     logger.ErrorMessage = msg;
                     throw new Exception(msg);
@@ -109,7 +124,21 @@ namespace QualLMS.WebAppMvc.Controllers
             }
             catch (Exception ex)
             {
+                Roles role = Roles.None;
+
+                if (model.Id != Guid.Empty)
+                {
+                    Enum.TryParse<Roles>(model.Role, out role);
+                    model.role = role;
+                    model.RoleId = (int)role;
+                }
+                else
+                {
+                    model.RoleId = Convert.ToInt32(Request.Query["RId"]);
+                    model.role = (Roles)model.RoleId;
+                }
                 logger.GenerateException(ex);
+                logger.ErrorMessage = logger.GenerateDetailedException(ex);
                 return View(model);
             }
 

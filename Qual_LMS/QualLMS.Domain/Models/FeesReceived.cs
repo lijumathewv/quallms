@@ -8,8 +8,8 @@ namespace QualLMS.Domain.Models
         public Guid Id { get; set; }
 
         [Required]
-        public string UserId { get; set; } = string.Empty;
-        public virtual User? User { get; set; }
+        public Guid StudentId { get; set; }
+        public virtual ApplicationUser? Student { get; set; }
 
         [Required]
         public Guid CourseId { get; set; }

@@ -10,7 +10,7 @@ using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.API.Repositories
 {
-    public class StudentCourseRepository(DataContext context, CustomLogger logger, UserManager<User> userManager) : IStudentCourse
+    public class StudentCourseRepository(DataContext context, CustomLogger logger) : IStudentCourse
     {
         public ServiceResponse.GeneralResponses AddOrUpdate(StudentCourseData model)
         {
@@ -86,7 +86,7 @@ namespace QualLMS.API.Repositories
             {
                 var studs = context.StudentCourse.Where(s => s.OrganizationId == new Guid(OrgId)).Include(i => i.Course).ToList();
 
-                var data = (from s in studs join sc in context.Users
+                var data = (from s in studs join sc in context.ApplicationUser
                            on s.StudentId equals sc.Id
                             select new StudentCourseData
                             {
@@ -116,7 +116,7 @@ namespace QualLMS.API.Repositories
             {
                 var s = context.StudentCourse.Include(i => i.Course).FirstOrDefault(h => h.Id == new Guid(Id));
 
-                var user = context.Users.FirstOrDefault(u => u.Id == s.StudentId);
+                var user = context.ApplicationUser.FirstOrDefault(u => u.Id == s.StudentId);
 
                 var data = new StudentCourseData
                 {
@@ -144,14 +144,14 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var data = context.StudentCourse.FirstOrDefault(h => h.StudentId == StudentId && h.CourseId == new Guid(CourseId) && !h.Completed);
+                var data = context.StudentCourse.FirstOrDefault(h => h.StudentId == new Guid(StudentId) && h.CourseId == new Guid(CourseId) && !h.Completed);
 
                 int BalanceAmount = 0;
                 int CourseFees = 0;
                 if (data != null)
                 {
                     CourseFees = data.CourseFees;
-                    int ReceiptFees = context.FeesReceived.Where(f => f.UserId == StudentId && f.CourseId == new Guid(CourseId)).Sum(s => s.ReceiptFees);
+                    int ReceiptFees = context.FeesReceived.Where(f => f.StudentId ==  new Guid(StudentId) && f.CourseId == new Guid(CourseId)).Sum(s => s.ReceiptFees);
 
                     BalanceAmount = CourseFees - ReceiptFees;
                 }
@@ -169,10 +169,10 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var studs = context.StudentCourse.Include(i => i.Course).Where(s => s.StudentId == StudentId && !s.Completed).ToList();
+                var studs = context.StudentCourse.Include(i => i.Course).Where(s => s.StudentId == new Guid(StudentId) && !s.Completed).ToList();
 
                 var data = (from s in studs
-                            join sc in context.Users
+                            join sc in context.ApplicationUser
                            on s.StudentId equals sc.Id
                             select new StudentCourseData
                             {

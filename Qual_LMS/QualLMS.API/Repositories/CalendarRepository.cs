@@ -10,7 +10,7 @@ using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.API.Repositories
 {
-    public class CalendarRepository(DataContext context, CustomLogger logger, UserManager<User> userManager) : ICalendar
+    public class CalendarRepository(DataContext context, CustomLogger logger) : ICalendar
     {
         public ServiceResponse.GeneralResponses AddOrUpdate(CalendarData model)
         {
@@ -21,7 +21,7 @@ namespace QualLMS.API.Repositories
                 {
                     var Model = new Calendar()
                     {
-                        UserId = model.TeacherId,
+                        TeacherId = model.TeacherId,
                         CourseId = model.CourseId,
                         Date = model.Date,
                         StartTime = model.StartTime,
@@ -33,7 +33,7 @@ namespace QualLMS.API.Repositories
                 else
                 {
                     data.CourseId = model.CourseId;
-                    data.UserId = model.TeacherId;
+                    data.TeacherId = model.TeacherId;
                     data.Date = model.Date;
                     data.StartTime = model.StartTime;
                     data.EndTime = model.EndTime;
@@ -86,12 +86,12 @@ namespace QualLMS.API.Repositories
             {
                 var studs = context.Calendar.Where(c => c.OrganizationId == new Guid(OrgId)).Include(i => i.Course).ToList();
 
-                var data = (from s in studs join sc in context.Users
-                           on s.UserId equals sc.Id
+                var data = (from s in studs join sc in context.ApplicationUser
+                           on s.Id equals sc.Id
                             select new CalendarData
                             {
                                 Id = s.Id,
-                                TeacherId = s.UserId,
+                                TeacherId = s.TeacherId,
                                 TeacherName = sc.FullName,
                                 CourseId = s.CourseId,
                                 CourseName = s.Course.CourseName,
@@ -116,12 +116,12 @@ namespace QualLMS.API.Repositories
             {
                 var s = context.Calendar.Include(i => i.Course).FirstOrDefault(h => h.Id == new Guid(Id));
 
-                var user = context.Users.FirstOrDefault(u => u.Id == s.UserId);
+                var user = context.ApplicationUser.FirstOrDefault(u => u.Id == s.Id);
 
                 var data = new CalendarData
                 {
                     Id = s.Id,
-                    TeacherId = s.UserId,
+                    TeacherId = s.TeacherId,
                     TeacherName = user.FullName,
                     CourseId = s.CourseId,
                     CourseName = s.Course.CourseName,
@@ -144,15 +144,15 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var studs = context.Calendar.Include(i => i.Course).Where(s => s.UserId == TeacherId).ToList();
+                var studs = context.Calendar.Include(i => i.Course).Where(s => s.TeacherId == new Guid(TeacherId)).ToList();
 
                 var data = (from s in studs
-                            join sc in context.Users
-                           on s.UserId equals sc.Id
+                            join sc in context.ApplicationUser
+                           on s.TeacherId equals sc.Id
                             select new CalendarData
                             {
                                 Id = s.Id,
-                                TeacherId = s.UserId,
+                                TeacherId = s.TeacherId,
                                 TeacherName = sc.FullName,
                                 CourseId = s.CourseId,
                                 CourseName = s.Course.CourseName,

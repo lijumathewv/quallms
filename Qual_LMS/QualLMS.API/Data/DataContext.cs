@@ -1,14 +1,21 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 
 namespace QualLMS.API.Data
 {
-    public class DataContext : IdentityDbContext<User>
+    public class DataContext : DbContext
     {
-        public DataContext(DbContextOptions options) : base(options)
+        public DataContext(DbContextOptions options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ApplicationUser>().HasIndex(u => u.EmailId).IsUnique();
         }
+
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
 
         public DbSet<Attendance> Attendance { get; set; }
         public DbSet<Organization> Organizations { get; set; }

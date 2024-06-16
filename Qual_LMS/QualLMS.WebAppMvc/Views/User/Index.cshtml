@@ -8,8 +8,7 @@
 @inject CustomLogger logger;
 @{
     var data = JsonSerializer.Serialize(Model);
-    Roles CurrentRole = Roles.None;
-    Enum.TryParse<Roles>(logger.LoginDetails.Role, out CurrentRole);
+    Roles CurrentRole = logger.LoginDetails.Role;
 }
 
 @section StylesAndScripts {

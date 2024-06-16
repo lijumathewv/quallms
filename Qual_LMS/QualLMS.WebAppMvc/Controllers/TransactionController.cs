@@ -14,27 +14,20 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                if (TempData["IsError"] != null)
                 {
-                    if (TempData["IsError"] != null)
-                    {
-                        ViewBag.IsError = TempData["IsError"];
-                        ViewBag.ErrorMessage = logger.ErrorMessage;
-                    }
-                    if (TempData["IsSuccess"] != null)
-                    {
-                        ViewBag.IsSuccess = TempData["IsSuccess"];
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
-
-                    var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all?OrgId=" + logger.LoginDetails.OrganizationId);
-
-                    return View(data);
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
                 }
-                else
+                if (TempData["IsSuccess"] != null)
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
                 }
+
+                var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all?OrgId=" + logger.LoginDetails.OrganizationId);
+
+                return View(data);
             }
             catch (Exception ex)
             {
@@ -48,35 +41,27 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                if (TempData["IsError"] != null)
                 {
-                    if (TempData["IsError"] != null)
-                    {
-                        ViewBag.IsError = TempData["IsError"];
-                        ViewBag.ErrorMessage = logger.ErrorMessage;
-                    }
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                }
 
-                    if (TempData["IsSuccess"] != null)
-                    {
-                        ViewBag.IsSuccess = TempData["IsSuccess"];
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
+                if (TempData["IsSuccess"] != null)
+                {
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
+                }
 
-                    if (!string.IsNullOrEmpty(Id))
-                    {
-                        var data = client.ExecutePostAPI<StudentCourseData>("StudentCourse/getsingle?Id=" + Id);
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    var data = client.ExecutePostAPI<StudentCourseData>("StudentCourse/getsingle?Id=" + Id);
 
-                        return View(data);
-                    }
-                    else
-                    {
-                        return View(new StudentCourseData());
-                    }
-
+                    return View(data);
                 }
                 else
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    return View(new StudentCourseData());
                 }
             }
             catch (Exception ex)
@@ -93,26 +78,19 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                Model.OrganizationId = logger.LoginDetails!.OrganizationId;
+
+                var data = client.ExecutePostAPI<ResultCommon>("StudentCourse/add", JsonSerializer.Serialize(Model));
+
+                if (data.Error)
                 {
-                    Model.OrganizationId = logger.LoginDetails!.OrganizationId;
-
-                    var data = client.ExecutePostAPI<ResultCommon>("StudentCourse/add", JsonSerializer.Serialize(Model));
-
-                    if (data.Error)
-                    {
-                        throw new Exception(data.Message);
-                    }
-
-                    ViewBag.IsSuccess = !data.Error;
-                    ViewBag.SuccessMessage = "Data updated successfully!";
-
-                    return RedirectToActionPermanent("StudentCourseList");
+                    throw new Exception(data.Message);
                 }
-                else
-                {
-                    return RedirectToActionPermanent("Index", "Login");
-                }
+
+                ViewBag.IsSuccess = !data.Error;
+                ViewBag.SuccessMessage = "Data updated successfully!";
+
+                return RedirectToActionPermanent("StudentCourseList");
             }
             catch (Exception ex)
             {
@@ -128,27 +106,20 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                if (TempData["IsError"] != null)
                 {
-                    if (TempData["IsError"] != null)
-                    {
-                        ViewBag.IsError = TempData["IsError"];
-                        ViewBag.ErrorMessage = logger.ErrorMessage;
-                    }
-                    if (TempData["IsSuccess"] != null)
-                    {
-                        ViewBag.IsSuccess = TempData["IsSuccess"];
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
-
-                    var data = client.ExecutePostAPI<List<FeesReceivedData>>("FeesReceived/all");
-
-                    return View(data);
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
                 }
-                else
+                if (TempData["IsSuccess"] != null)
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
                 }
+
+                var data = client.ExecutePostAPI<List<FeesReceivedData>>("FeesReceived/all");
+
+                return View(data);
             }
             catch (Exception ex)
             {
@@ -162,37 +133,29 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                if (TempData["IsError"] != null)
                 {
-                    if (TempData["IsError"] != null)
-                    {
-                        ViewBag.IsError = TempData["IsError"];
-                        ViewBag.ErrorMessage = logger.ErrorMessage;
-                    }
-                    if (TempData["IsSuccess"] != null)
-                    {
-                        ViewBag.IsSuccess = TempData["IsSuccess"];
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                }
+                if (TempData["IsSuccess"] != null)
+                {
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
+                }
 
-                    if (!string.IsNullOrEmpty(Id))
-                    {
-                        var data = client.ExecutePostAPI<FeesReceivedData>("FeesReceived/getsingle?Id=" + Id);
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    var data = client.ExecutePostAPI<FeesReceivedData>("FeesReceived/getsingle?Id=" + Id);
 
-                        return View(data);
-                    }
-                    else
-                    {
-                        DateOnly date;
-                        DateOnly.TryParse(DateTime.Today.ToString(), out date);
-
-                        return View(new FeesReceivedData() { ReceiptDate = date });
-                    }
-
+                    return View(data);
                 }
                 else
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    DateOnly date;
+                    DateOnly.TryParse(DateTime.Today.ToString(), out date);
+
+                    return View(new FeesReceivedData() { ReceiptDate = date });
                 }
             }
             catch (Exception ex)
@@ -207,38 +170,30 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                Model.OrganizationId = logger.LoginDetails.OrganizationId;
+
+                Model.Mode = PaymentMode.Cash;
+                Model.ModeDetails = "Received in Cash";
+
+                var data = client.ExecutePostAPI<ResultCommon>("FeesReceived/add", JsonSerializer.Serialize(Model));
+
+                if (data.Error)
                 {
-                    Model.OrganizationId = logger.LoginDetails.OrganizationId;
-
-                    Model.Mode = PaymentMode.Cash;
-                    Model.ModeDetails = "Received in Cash";
-
-                    var data = client.ExecutePostAPI<ResultCommon>("FeesReceived/add", JsonSerializer.Serialize(Model));
-
-                    if (data.Error)
+                    ViewBag.IsError = data.Error;
+                    ViewBag.ErrorMessage = data.Message;
+                    if (data.ApiError != null)
                     {
-                        ViewBag.IsError = data.Error;
-                        ViewBag.ErrorMessage = data.Message;
-                        if (data.ApiError != null)
-                        {
-                            ViewBag.ErrorMessage += "<br/>" + logger.ParseAPIError(data.ApiError);
-                        }
-                        throw new Exception(ViewBag.ErrorMessage);
+                        ViewBag.ErrorMessage += "<br/>" + logger.ParseAPIError(data.ApiError);
                     }
-                    if (!data.Error)
-                    {
-                        ViewBag.IsSuccess = !data.Error;
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
-
-                    return View(new FeesReceivedData());
-
+                    throw new Exception(ViewBag.ErrorMessage);
                 }
-                else
+                if (!data.Error)
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    ViewBag.IsSuccess = !data.Error;
+                    ViewBag.SuccessMessage = "Data updated successfully!";
                 }
+
+                return View(new FeesReceivedData());
             }
             catch (Exception ex)
             {
@@ -254,27 +209,20 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                if (TempData["IsError"] != null)
                 {
-                    if (TempData["IsError"] != null)
-                    {
-                        ViewBag.IsError = TempData["IsError"];
-                        ViewBag.ErrorMessage = logger.ErrorMessage;
-                    }
-                    if (TempData["IsSuccess"] != null)
-                    {
-                        ViewBag.IsSuccess = TempData["IsSuccess"];
-                        ViewBag.SuccessMessage = "Data updated successfully!";
-                    }
-
-                    var data = client.ExecutePostAPI<List<CalendarData>>("Calendar/all?OrgId=" + logger.LoginDetails.OrganizationId);
-
-                    return View(data);
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
                 }
-                else
+                if (TempData["IsSuccess"] != null)
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
                 }
+
+                var data = client.ExecutePostAPI<List<CalendarData>>("Calendar/all?OrgId=" + logger.LoginDetails.OrganizationId);
+
+                return View(data);
             }
             catch (Exception ex)
             {
@@ -291,66 +239,59 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             try
             {
-                if (logger.IsLogged)
+                Guid TeacherId = Guid.Empty;
+                Guid CourseId = Guid.Empty;
+                Guid CalendarId = Guid.Empty;
+                if (!string.IsNullOrEmpty(form["CalendarId"]))
                 {
-                    string TeacherId = string.Empty;
-                    Guid CourseId = Guid.Empty;
-                    Guid CalendarId = Guid.Empty;
-                    if (!string.IsNullOrEmpty(form["CalendarId"]))
-                    {
-                        CalendarId = new Guid(form["CalendarId"].ToString());
-                    }
+                    CalendarId = new Guid(form["CalendarId"].ToString());
+                }
 
-                    if (!string.IsNullOrEmpty(form["TeacherId"]))
-                    {
-                        TeacherId = form["TeacherId"].ToString();
-                    }
-                    else
-                    {
-                        logger.IsError = true;
-                        logger.ErrorMessage = "Teacher not selected!";
-                    }
-
-
-                    if (!string.IsNullOrEmpty(form["CourseId"]))
-                    {
-                        CourseId = new Guid(form["CourseId"].ToString());
-                    }
-                    else
-                    {
-                        logger.IsError = true;
-                        logger.ErrorMessage += "<br/>Course not selected!";
-                    }
-
-                    if (!logger.IsError)
-                    {
-                        var model = new CalendarData
-                        {
-                            Id = CalendarId,
-                            TeacherId = TeacherId,
-                            CourseId = CourseId,
-                            OrganizationId = logger.LoginDetails.OrganizationId,
-                            Date = DateOnly.Parse(form["Date"].ToString()),
-                            StartTime = TimeOnly.Parse(form["StartTime"].ToString()),
-                            EndTime = TimeOnly.Parse(form["EndTime"].ToString())
-                        };
-
-                        var data = client.ExecutePostAPI<ResultCommon>("Calendar/add", JsonSerializer.Serialize(model));
-
-                        TempData["IsError"] = data.Error;
-                        TempData["IsSuccess"] = !data.Error;
-                    }
-                    else
-                    {
-                        throw new Exception(logger.ErrorMessage);
-                    }
-
-                    return RedirectToActionPermanent("TeacherCalendarList");
+                if (!string.IsNullOrEmpty(form["TeacherId"]))
+                {
+                    TeacherId = new Guid(form["TeacherId"].ToString());
                 }
                 else
                 {
-                    return RedirectToActionPermanent("Index", "Login");
+                    logger.IsError = true;
+                    logger.ErrorMessage = "Teacher not selected!";
                 }
+
+
+                if (!string.IsNullOrEmpty(form["CourseId"]))
+                {
+                    CourseId = new Guid(form["CourseId"].ToString());
+                }
+                else
+                {
+                    logger.IsError = true;
+                    logger.ErrorMessage += "<br/>Course not selected!";
+                }
+
+                if (!logger.IsError)
+                {
+                    var model = new CalendarData
+                    {
+                        Id = CalendarId,
+                        TeacherId = TeacherId,
+                        CourseId = CourseId,
+                        OrganizationId = logger.LoginDetails.OrganizationId,
+                        Date = DateOnly.Parse(form["Date"].ToString()),
+                        StartTime = TimeOnly.Parse(form["StartTime"].ToString()),
+                        EndTime = TimeOnly.Parse(form["EndTime"].ToString())
+                    };
+
+                    var data = client.ExecutePostAPI<ResultCommon>("Calendar/add", JsonSerializer.Serialize(model));
+
+                    TempData["IsError"] = data.Error;
+                    TempData["IsSuccess"] = !data.Error;
+                }
+                else
+                {
+                    throw new Exception(logger.ErrorMessage);
+                }
+
+                return RedirectToActionPermanent("TeacherCalendarList");
             }
             catch (Exception ex)
             {

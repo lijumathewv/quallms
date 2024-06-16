@@ -10,8 +10,7 @@
 @{
     var data = JsonSerializer.Serialize(Model);
 
-    Roles CurrentRole = Roles.None;
-    Enum.TryParse<Roles>(logger.LoginDetails.Role, out CurrentRole);
+    Roles CurrentRole = logger.LoginDetails.Role;
 
     bool IsError = false;
     string ErrorMessage = "";

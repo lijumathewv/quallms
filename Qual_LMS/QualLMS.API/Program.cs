@@ -23,10 +23,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(
     opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection") ??
     throw new InvalidOperationException("Unable to find the database")));
-builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DataContext>()
-    .AddSignInManager()
-    .AddRoles<IdentityRole>()
-    .AddApiEndpoints();
+//builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DataContext>()
+//    .AddSignInManager()
+//    .AddRoles<IdentityRole>()
+//    .AddApiEndpoints();
 
 builder.Services.AddAuthentication(opt =>
 {
@@ -68,7 +68,7 @@ builder.Services.AddCors(opt =>
     });
 });
 
-builder.Services.AddScoped<IUserAccount, AccountRepository>();
+builder.Services.AddScoped<IApplicationUserAccount, ApplicationUserAccountRepository>();
 builder.Services.AddScoped<IAttendance, AttendanceRepository>();
 builder.Services.AddScoped<IOrganization, OrganizationRepository>();
 

@@ -10,7 +10,7 @@ namespace QualLMS.Domain.APIModels
 
         [Required]
         [JsonPropertyName("appUserId")]
-        public string AppId { get; set; } = string.Empty;
+        public Guid AppId { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]

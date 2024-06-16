@@ -7,13 +7,13 @@ using QualvationLibrary;
 
 namespace QualLMS.API.Repositories
 {
-    public class OrganizationRepository(DataContext context, IUserAccount user, CustomLogger logger) : IOrganization
+    public class OrganizationRepository(DataContext context, CustomLogger logger, IApplicationUserAccount user) : IOrganization
     {
         public ServiceResponse.GeneralResponses AddOrUpdate(Organization model)
         {
             try
             {
-                model.Users = null!;
+                model.ApplicationUsers = null!;
                 bool flg = true;
                 string message = "";
 
@@ -22,23 +22,23 @@ namespace QualLMS.API.Repositories
                 {
                     //model.CannotDelete = false;
                     context.Organizations.Add(model);
-
+                    context.SaveChanges();
                     var response = user.CreateAccount(new UserRegister
                     {
                         FullName = "Admin",
                         OrganizationId = model.Id,
                         EmailId = model.EmailId,
                         PhoneNumber = model.PhoneNumber,
-                        RoleId = (int)Roles.Admin,
+                        RoleId = Roles.Admin,
                         Password = "Admin@123",
                         ConfirmPassword = "Admin@123"
                     });
 
-                    flg = response.Result.flag;
+                    flg = response.flag;
 
                     if (!flg)
                     {
-                        message = "Unable to create Admin User </br>" + response.Result.message;
+                        message = "Unable to create Admin User </br>" + response.message;
                     }
                     else
                     {
@@ -57,9 +57,11 @@ namespace QualLMS.API.Repositories
                     //data.IsDeleted = false;
 
                     message = "Data Updated!";
+
+                    context.SaveChanges();
                 }
 
-                context.SaveChanges();
+                
 
                 return new GeneralResponses(true, message);
             }

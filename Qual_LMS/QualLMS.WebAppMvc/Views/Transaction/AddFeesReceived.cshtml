@@ -18,7 +18,7 @@
     List<StudentCourse> Courses = new List<StudentCourse>();
     if (Model.CourseId != Guid.Empty)
     {
-        Courses = client.ExecutePostAPI<List<StudentCourse>>("StudentCourse/studentcourse?StudentId=" + Model.UserId);
+        Courses = client.ExecutePostAPI<List<StudentCourse>>("StudentCourse/studentcourse?StudentId=" + Model.StudentId);
     }
 
     var Fees = client.ExecutePostAPI<List<Fees>>("Fees/all?OrgId=" + logger.LoginDetails.OrganizationId);

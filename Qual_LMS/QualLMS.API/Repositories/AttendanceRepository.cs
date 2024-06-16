@@ -11,7 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QualLMS.API.Repositories
 {
-    public class AttendanceRepository (UserManager<User> userManager, DataContext dataContext) : IAttendance
+    public class AttendanceRepository (DataContext dataContext) : IAttendance
     {
         public ResponsesWithData CheckIn(AttendanceData attendance)
         {
@@ -107,7 +107,7 @@ namespace QualLMS.API.Repositories
             List<Attendance> data = new List<Attendance>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.UserId == Id.ToString()).OrderBy(o => o.AttendanceDate).ToList();
+                data = dataContext.Attendance.Where(o => o.UserId == Id).OrderBy(o => o.AttendanceDate).ToList();
 
                 if (data == null)
                 {
@@ -132,7 +132,7 @@ namespace QualLMS.API.Repositories
             List<AttendanceData> data = new List<AttendanceData>();
             try
             {
-                data = (from usr in userManager.Users.Where(o => o.OrganizationId == OrgId)
+                data = (from usr in dataContext.ApplicationUser.Where(o => o.OrganizationId == OrgId)
                            join att in dataContext.Attendance
                            on usr.Id equals att.UserId
                            select new AttendanceData
@@ -170,7 +170,7 @@ namespace QualLMS.API.Repositories
             Attendance data = new Attendance();
             try
             {
-                data = dataContext.Attendance.FirstOrDefault(o => o.UserId == Id.ToString() && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
+                data = dataContext.Attendance.FirstOrDefault(o => o.UserId == Id && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
 
                 if (data == null)
                 {
@@ -195,7 +195,7 @@ namespace QualLMS.API.Repositories
             List<Attendance> data = new List<Attendance>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.UserId == Id.ToString() && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
+                data = dataContext.Attendance.Where(o => o.UserId == Id && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
 
                 if (data == null)
                 {

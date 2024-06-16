@@ -20,7 +20,7 @@ namespace QualLMS.API.Repositories
                 {
                     var Model = new FeesReceived
                     {
-                        UserId = model.UserId,
+                        StudentId = model.StudentId,
                         CourseId = model.CourseId,
                         FeesId = model.FeesId,
                         ReceiptNumber = model.ReceiptNumber,
@@ -87,11 +87,11 @@ namespace QualLMS.API.Repositories
                 var data = context.FeesReceived
                     .Include(i => i.Course)
                     .Include(i => i.Fees)
-                    .Include(i => i.User)
+                    .Include(i => i.Student)
                     .Select(s => new FeesReceivedData
                     {
                         Id = s.Id,
-                        StudentName = s.User.FullName,
+                        StudentName = s.Student.FullName,
                         CourseId = s.CourseId,
                         CourseName = s.Course.CourseName,
                         FeesId = s.FeesId,

@@ -35,7 +35,7 @@ namespace QualLMS.Domain.Models
         [DataType(DataType.Text)]
         public string OfficeGeoLocation { get; set; } = String.Empty;
 
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; } = new List<ApplicationUser>();
 
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 

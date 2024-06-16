@@ -4,8 +4,7 @@
 @inject CustomLogger logger
 
 @{
-    Roles Role = Roles.None;
-    Enum.TryParse<Roles>(logger.LoginDetails.Role, out Role);
+    Roles Role = logger.LoginDetails.Role;
 }
 
 <!-- Sidebar Holder -->
