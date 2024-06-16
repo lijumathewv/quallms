@@ -3,6 +3,7 @@ using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Models;
 using QualvationLibrary;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
@@ -24,7 +25,7 @@ namespace QualLMS.WebAppMvc.Controllers
                     ViewBag.SuccessMessage = "Data updated successfully!";
                 }
 
-                var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all");
+                var data = client.ExecutePostAPI<List<StudentCourseData>>("StudentCourse/all?OrgId=" + logger.LoginDetails.OrganizationId);
 
                 return View(data);
             }
@@ -203,6 +204,98 @@ namespace QualLMS.WebAppMvc.Controllers
                     return View(new FeesReceivedData());
                 }
 
+            }
+            else
+            {
+                return RedirectToActionPermanent("Index", "Login");
+            }
+        }
+
+        [HttpGet("TeacherCalendar")]
+        public IActionResult TeacherCalendarList()
+        {
+            if (logger.IsLogged)
+            {
+                if (TempData["IsError"] != null)
+                {
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                }
+                if (TempData["IsSuccess"] != null)
+                {
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
+                }
+
+                var data = client.ExecutePostAPI<List<CalendarData>>("Calendar/all?OrgId=" + logger.LoginDetails.OrganizationId);
+
+                return View(data);
+            }
+            else
+            {
+                return RedirectToActionPermanent("Index", "Login");
+            }
+        }
+
+        [HttpPost("AddCalendar")]
+        public IActionResult AddTeacherCalendar(IFormCollection form)
+        {
+            if (logger.IsLogged)
+            {
+                string TeacherId = string.Empty;
+                Guid CourseId = Guid.Empty;
+                Guid CalendarId = Guid.Empty;
+                if (!string.IsNullOrEmpty(form["CalendarId"]))
+                {
+                    CalendarId = new Guid(form["CalendarId"].ToString());
+                }
+
+                if (!string.IsNullOrEmpty(form["TeacherId"]))
+                {
+                    TeacherId = form["TeacherId"].ToString();
+                }
+                else
+                {
+                    logger.IsError = true;
+                    logger.ErrorMessage = "Teacher not selected!";
+                }
+
+
+                if (!string.IsNullOrEmpty(form["CourseId"]))
+                {
+                    CourseId = new Guid(form["CourseId"].ToString());
+                }
+                else
+                {
+                    logger.IsError = true;
+                    logger.ErrorMessage += "<br/>Course not selected!";
+                }
+
+                if (!logger.IsError)
+                {
+                    var model = new CalendarData
+                    {
+                        Id = CalendarId,
+                        TeacherId = TeacherId,
+                        CourseId = CourseId,
+                        OrganizationId = logger.LoginDetails.OrganizationId,
+                        Date = DateOnly.Parse(form["Date"].ToString()),
+                        StartTime = TimeOnly.Parse(form["StartTime"].ToString()),
+                        EndTime = TimeOnly.Parse(form["EndTime"].ToString())
+                    };
+
+                    var data = client.ExecutePostAPI<ResultCommon>("Calendar/add", JsonSerializer.Serialize(model));
+
+                    TempData["IsError"] = data.Error;
+                    TempData["IsSuccess"] = !data.Error;
+                }
+                else
+                {
+                    TempData["IsError"] = logger.IsError;
+                    TempData["IsSuccess"] = !logger.IsError;
+                }
+
+                return RedirectToActionPermanent("TeacherCalendarList");
             }
             else
             {

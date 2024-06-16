@@ -12,5 +12,7 @@ namespace QualLMS.Domain.Contracts
         Task<LoginResponses> LoginAccount(Login user);
         Task<ResponsesWithData> AllUsers(Guid OrganizationId);
         Task<ResponsesWithData> GetUser(string Id);
+        Task<ResponsesWithData> GetTeachers(string OrgId);
+        Task<ResponsesWithData> GetStudents(string OrgId);
     }
 }

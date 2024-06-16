@@ -16,6 +16,55 @@ namespace QualLMS.API.Repositories
 {
     public class AccountRepository(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config) : IUserAccount
     {
+        public async Task<ResponsesWithData> GetStudents(string OrgId)
+        {
+            Roles role = Roles.Students;
+            var teacherrole = await roleManager.FindByNameAsync(role.ToString());
+
+            if (teacherrole == null)
+            {
+                return new ResponsesWithData(false, "", "Role not found");
+            }
+
+            var users = await userManager.GetUsersInRoleAsync(role.ToString());
+            var result = users.Where(u => u.OrganizationId == new Guid(OrgId)).Select(user => new UserAllData
+            {
+                Id = new Guid(user.Id),
+                EmailId = user.Email!,
+                FullName = user.FullName!,
+                ParentName = user.ParentName!,
+                ParentNumber = user.ParentNumber!,
+                PhoneNumber = user.PhoneNumber!,
+                Role = role.ToString()
+            }).ToList();
+
+            return new ResponsesWithData(true, JsonSerializer.Serialize(result), "Data found!");
+        }
+
+        public async Task<ResponsesWithData> GetTeachers(string OrgId)
+        {
+            Roles role = Roles.Teachers;
+            var teacherrole = await roleManager.FindByNameAsync(role.ToString());
+
+            if (teacherrole == null)
+            {
+                return new ResponsesWithData(false, JsonSerializer.Serialize(new List<UserAllData>()), "Role not found");
+            }
+
+            var users = await userManager.GetUsersInRoleAsync(role.ToString());
+            var result = users.Where(u => u.OrganizationId == new Guid(OrgId)).Select(user => new UserAllData
+            {
+                Id = new Guid(user.Id),
+                EmailId = user.Email!,
+                FullName = user.FullName!,
+                ParentName = user.ParentName!,
+                ParentNumber = user.ParentNumber!,
+                PhoneNumber = user.PhoneNumber!,
+                Role = role.ToString()
+            }).ToList();
+
+            return new ResponsesWithData(true, JsonSerializer.Serialize(result), "Data found!");
+        }
 
         public async Task<ResponsesWithData> GetUser(string Id)
         {
@@ -35,6 +84,7 @@ namespace QualLMS.API.Repositories
 
             return new ResponsesWithData(true, JsonSerializer.Serialize(result), "Data found!");
         }
+
         public async Task<ResponsesWithData> AllUsers(Guid OrganizationId)
         {
             var users = userManager.Users.Where(u => u.OrganizationId == OrganizationId).ToList();

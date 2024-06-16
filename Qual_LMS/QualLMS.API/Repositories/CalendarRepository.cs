@@ -10,33 +10,33 @@ using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.API.Repositories
 {
-    public class StudentCourseRepository(DataContext context, CustomLogger logger, UserManager<User> userManager) : IStudentCourse
+    public class CalendarRepository(DataContext context, CustomLogger logger, UserManager<User> userManager) : ICalendar
     {
-        public ServiceResponse.GeneralResponses AddOrUpdate(StudentCourseData model)
+        public ServiceResponse.GeneralResponses AddOrUpdate(CalendarData model)
         {
             try
             {
-                var data = context.StudentCourse.FirstOrDefault(o => o.Id == model.Id);
+                var data = context.Calendar.FirstOrDefault(o => o.Id == model.Id);
                 if (data == null)
                 {
-                    var Model = new StudentCourse()
+                    var Model = new Calendar()
                     {
-                        StudentId = model.StudentId,
+                        UserId = model.TeacherId,
                         CourseId = model.CourseId,
-                        RecentEducation = model.RecentEducation,
-                        AdmissionNumber = model.AdmissionNumber,
-                        CourseFees = model.CourseFees,
+                        Date = model.Date,
+                        StartTime = model.StartTime,
+                        EndTime = model.EndTime,
                         OrganizationId = model.OrganizationId
                     };
-                    context.StudentCourse.Add(Model);
+                    context.Calendar.Add(Model);
                 }
                 else
                 {
                     data.CourseId = model.CourseId;
-                    data.StudentId = model.StudentId;
-                    data.RecentEducation = model.RecentEducation;
-                    data.AdmissionNumber = model.AdmissionNumber;
-                    data.CourseFees = model.CourseFees;
+                    data.UserId = model.TeacherId;
+                    data.Date = model.Date;
+                    data.StartTime = model.StartTime;
+                    data.EndTime = model.EndTime;
                     data.OrganizationId = model.OrganizationId;
                 }
                 context.SaveChanges();
@@ -59,10 +59,10 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var data = context.StudentCourse.FirstOrDefault(o => o.Id == new Guid(Id));
+                var data = context.Calendar.FirstOrDefault(o => o.Id == new Guid(Id));
                 if (data != null)
                 {
-                    context.StudentCourse.Remove(data);
+                    context.Calendar.Remove(data);
                     context.SaveChanges();
 
                     return new GeneralResponses(true, "Data Deleted!");
@@ -84,20 +84,20 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var studs = context.StudentCourse.Where(s => s.OrganizationId == new Guid(OrgId)).Include(i => i.Course).ToList();
+                var studs = context.Calendar.Where(c => c.OrganizationId == new Guid(OrgId)).Include(i => i.Course).ToList();
 
                 var data = (from s in studs join sc in context.Users
-                           on s.StudentId equals sc.Id
-                            select new StudentCourseData
+                           on s.UserId equals sc.Id
+                            select new CalendarData
                             {
                                 Id = s.Id,
-                                StudentId = s.StudentId,
-                                StudentName = sc.FullName,
+                                TeacherId = s.UserId,
+                                TeacherName = sc.FullName,
                                 CourseId = s.CourseId,
                                 CourseName = s.Course.CourseName,
-                                RecentEducation = s.RecentEducation,
-                                AdmissionNumber = s.AdmissionNumber,
-                                CourseFees = s.CourseFees,
+                                Date = s.Date,
+                                StartTime = s.StartTime,
+                                EndTime = s.EndTime,
                                 OrganizationId = s.OrganizationId
                             }).ToList();
 
@@ -114,20 +114,20 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var s = context.StudentCourse.Include(i => i.Course).FirstOrDefault(h => h.Id == new Guid(Id));
+                var s = context.Calendar.Include(i => i.Course).FirstOrDefault(h => h.Id == new Guid(Id));
 
-                var user = context.Users.FirstOrDefault(u => u.Id == s.StudentId);
+                var user = context.Users.FirstOrDefault(u => u.Id == s.UserId);
 
-                var data = new StudentCourseData
+                var data = new CalendarData
                 {
                     Id = s.Id,
-                    StudentId = s.StudentId,
-                    StudentName = user.FullName,
+                    TeacherId = s.UserId,
+                    TeacherName = user.FullName,
                     CourseId = s.CourseId,
                     CourseName = s.Course.CourseName,
-                    RecentEducation = s.RecentEducation,
-                    AdmissionNumber = s.AdmissionNumber,
-                    CourseFees = s.CourseFees,
+                    Date = s.Date,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
                     OrganizationId = s.OrganizationId
                 };
 
@@ -140,50 +140,25 @@ namespace QualLMS.API.Repositories
             }
         }
 
-        public ResponsesWithData GetBalanceAmount(string StudentId, string CourseId)
+        public ServiceResponse.ResponsesWithData GetTeacherCalendar(string TeacherId)
         {
             try
             {
-                var data = context.StudentCourse.FirstOrDefault(h => h.StudentId == StudentId && h.CourseId == new Guid(CourseId) && !h.Completed);
-
-                int BalanceAmount = 0;
-                int CourseFees = 0;
-                if (data != null)
-                {
-                    CourseFees = data.CourseFees;
-                    int ReceiptFees = context.FeesReceived.Where(f => f.UserId == StudentId && f.CourseId == new Guid(CourseId)).Sum(s => s.ReceiptFees);
-
-                    BalanceAmount = CourseFees - ReceiptFees;
-                }
-
-                return new ResponsesWithData(true, JsonSerializer.Serialize(BalanceAmount), "Data Retrieved!");
-            }
-            catch (Exception ex)
-            {
-                logger.GenerateException(ex);
-                return new ResponsesWithData(false, "", "Error Occured!");
-            }
-        }
-
-        public ServiceResponse.ResponsesWithData GetStudentCourse(string StudentId)
-        {
-            try
-            {
-                var studs = context.StudentCourse.Include(i => i.Course).Where(s => s.StudentId == StudentId && !s.Completed).ToList();
+                var studs = context.Calendar.Include(i => i.Course).Where(s => s.UserId == TeacherId).ToList();
 
                 var data = (from s in studs
                             join sc in context.Users
-                           on s.StudentId equals sc.Id
-                            select new StudentCourseData
+                           on s.UserId equals sc.Id
+                            select new CalendarData
                             {
                                 Id = s.Id,
-                                StudentId = s.StudentId,
-                                StudentName = sc.FullName,
+                                TeacherId = s.UserId,
+                                TeacherName = sc.FullName,
                                 CourseId = s.CourseId,
                                 CourseName = s.Course.CourseName,
-                                RecentEducation = s.RecentEducation,
-                                AdmissionNumber = s.AdmissionNumber,
-                                CourseFees = s.CourseFees,
+                                Date = s.Date,
+                                StartTime = s.StartTime,
+                                EndTime = s.EndTime,
                                 OrganizationId = s.OrganizationId
                             }).ToList();
 

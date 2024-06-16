@@ -3,6 +3,7 @@ using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualvationLibrary;
+using System.Security.Cryptography;
 
 namespace QualLMS.API.Controllers
 {
@@ -35,6 +36,20 @@ namespace QualLMS.API.Controllers
         public async Task<IActionResult> GetUser(string Id)
         {
             var response = await userAccount.GetUser(Id);
+            return Ok(response);
+        }
+
+        [HttpPost("allteachers")]
+        public async Task<IActionResult> AllTeachers(string OrgId)
+        {
+            var response = await userAccount.GetTeachers(OrgId);
+            return Ok(response);
+        }
+
+        [HttpPost("allstudents")]
+        public async Task<IActionResult> AllStudents(string OrgId)
+        {
+            var response = await userAccount.GetStudents(OrgId);
             return Ok(response);
         }
     }

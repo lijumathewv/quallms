@@ -5,7 +5,7 @@ namespace QualLMS.Domain.Contracts
 {
     public interface ICourse
     {
-        ResponsesWithData Get();
+        ResponsesWithData GetAll(string OrgId);
         ResponsesWithData Get(string Id);
         ResponsesWithData GetFees(string Id);
         ResponsesWithData GetStudents(string Id);

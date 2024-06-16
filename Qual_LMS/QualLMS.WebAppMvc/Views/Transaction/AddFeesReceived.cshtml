@@ -12,7 +12,7 @@
     var ErrorMessage = logger.ErrorMessage;
     var SuccessMessage = logger.SuccessMessage;
 
-    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/all?Id=" + logger.LoginDetails!.OrganizationId);
+    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/allstudents?OrgId=" + logger.LoginDetails!.OrganizationId);
     var UserSelect = new SelectList(Users, "Id", "FullName");
 
     List<StudentCourse> Courses = new List<StudentCourse>();
@@ -21,7 +21,7 @@
         Courses = client.ExecutePostAPI<List<StudentCourse>>("StudentCourse/studentcourse?StudentId=" + Model.UserId);
     }
 
-    var Fees = client.ExecutePostAPI<List<Fees>>("Fees/all");
+    var Fees = client.ExecutePostAPI<List<Fees>>("Fees/all?OrgId=" + logger.LoginDetails.OrganizationId);
     var FeesSelect = new SelectList(Fees, "Id", "FeesName");
 
     var CourseSelect = new SelectList(Courses, "Id", "CourseName");

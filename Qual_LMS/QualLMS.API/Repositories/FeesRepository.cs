@@ -59,11 +59,11 @@ namespace QualLMS.API.Repositories
             }
         }
 
-        public ServiceResponse.ResponsesWithData Get()
+        public ServiceResponse.ResponsesWithData GetAll(string OrgId)
         {
             try
             {
-                var data = context.Fees.ToList();
+                var data = context.Fees.Where(f => f.OrganizationId == new Guid(OrgId)).ToList();
 
                 return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
             }

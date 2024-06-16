@@ -24,7 +24,7 @@ namespace QualLMS.WebAppMvc.Controllers
                     ViewBag.SuccessMessage = "Data updated successfully!";
                 }
 
-                var data = client.ExecutePostAPI<List<Course>>("Course/all");
+                var data = client.ExecutePostAPI<List<Course>>("Course/all?OrgId=" + logger.LoginDetails.OrganizationId);
 
                 return View(data);
             }
@@ -83,7 +83,7 @@ namespace QualLMS.WebAppMvc.Controllers
                     ViewBag.SuccessMessage = "Data updated successfully!";
                 }
 
-                var data = client.ExecutePostAPI<List<Fees>>("Fees/all");
+                var data = client.ExecutePostAPI<List<Fees>>("Fees/all?OrgId=" + logger.LoginDetails.OrganizationId);
 
                 return View(data);
             }

@@ -75,6 +75,8 @@ builder.Services.AddScoped<IFees, FeesRepository>();
 builder.Services.AddScoped<IFeesReceived, FeesReceivedRepository>();
 builder.Services.AddScoped<IStudentCourse, StudentCourseRepository>();
 
+builder.Services.AddScoped<ICalendar, CalendarRepository>();
+
 builder.Services.AddSingleton<CustomLogger>();
 
 builder.Services.AddAuthorizationBuilder();

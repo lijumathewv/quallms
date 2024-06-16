@@ -1,0 +1,250 @@
+﻿@using System.Text.Json
+@using QualLMS.Domain.APIModels
+@using QualLMS.Domain.Models
+@using QualvationLibrary
+
+@model List<CalendarData>
+
+@inject CustomLogger logger
+@inject Client client
+
+@{
+    var data = JsonSerializer.Serialize(Model);
+
+    var IsError = ViewBag.IsError;
+    var IsSuccess = ViewBag.IsSuccess;
+    var ErrorMessage = ViewBag.ErrorMessage;
+    var SuccessMessage = ViewBag.SuccessMessage;
+
+    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/allteachers?OrgId=" + logger.LoginDetails!.OrganizationId);
+    var UserSelect = new SelectList(Users, "Id", "FullName");
+
+    var Courses = client.ExecutePostAPI<List<Course>>("Course/all?OrgId=" + logger.LoginDetails.OrganizationId);
+    var CourseSelect = new SelectList(Courses, "Id", "CourseName");
+}
+
+@section StylesAndScripts {
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+}
+
+<div class="form-row">
+    <div class="col-md-1 md-3">
+        <a href="#" class="btn btn-outline-primary" data-toggle="modal" data-target="#UpdateModal">Add New</a>
+    </div>
+    <div class="col-md-12 md-3">
+        &nbsp;
+    </div>
+    <div class="col-md-12 md-3">
+        <div id="myGrid" class="ag-theme-quartz" style="height: 500px"></div>
+    </div>
+    @if (IsError != null)
+    {
+        if (IsError)
+        {
+            <div class="form-group">
+                <div class="alert alert-danger" role="alert">
+                    @Html.Raw(ErrorMessage)
+                </div>
+            </div>
+        }
+    }
+    @if (IsSuccess != null)
+    {
+        if (IsSuccess)
+        {
+            <div class="form-group">
+                <div class="alert alert-success" role="alert">
+                    @Html.Raw(SuccessMessage)
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- basic modal -->
+<div class="modal fade" id="UpdateModal" tabindex="-1" role="dialog" aria-labelledby="UpdateModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Add/Edit Calendar</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/AddCalendar">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="TeacherId">Teacher</label>
+                        <input type="hidden" class="form-control" id="CalendarId" name="CalendarId">
+                        <label for="TeacherId">Teacher</label>
+                        @Html.DropDownList("TeacherId", UserSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label for="CourseId">Course</label>
+                        @Html.DropDownList("CourseId", CourseSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="Date">Date</label>
+                                <input type="date" class="form-control" id="Date" name="Date" placeholder="Date is mandatory" required="">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="StartTime">Start Time</label>
+                                <input type="time" class="form-control" id="StartTime" name="StartTime" placeholder="StartTime is mandatory" required="">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="EndTime">End Time</label>
+                                <input type="time" class="form-control" id="EndTime" name="EndTime" placeholder="EndTime is mandatory" required="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            console.log("ready!");
+            var model = @Html.Raw(data);
+            //console.log(model);
+
+            let gridApi;
+
+            // Grid Options: Contains all of the data grid configurations
+            var gridOptions = {
+                suppressRowTransform: true,
+                autoSizeStrategy: {
+                    type: 'fitCellContents'
+                },
+                overlayNoRowsTemplate:
+                    '<span style="padding: 10px; border: 2px solid #444; background: lightgoldenrodyellow; color: red;">No Data Available</span>',
+                // Row Data: The data to be displayed.
+                rowData: model,
+                // Column Definitions: Defines the columns to be displayed.
+                columnDefs: [
+                    { headerName: 'ID', field: 'Id', pinned: "left" },
+                    { headerName: 'TeacherName', field: 'TeacherName', pinned: "left" },
+                    { headerName: 'CourseName', field: 'CourseName', filter: true },
+                    {
+                        headerName: 'Date', field: 'Date', filter: true,
+                        valueFormatter: params => {
+                            //console.log(params.value);
+                            const date = new Date(params.value);
+                            const formatter = new Intl.DateTimeFormat('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            });
+                            return formatter.format(date);
+                        }
+                    },
+                    { headerName: 'StartTime', field: 'StartTime', filter: true },
+                    { headerName: 'EndTime', field: 'EndTime', filter: true },
+                    {
+                        headerName: '',
+                        cellRenderer: function (params) {
+                            var anchor = document.createElement('a');
+                            var data = params.data;
+
+                            var icon = document.createElement('i');
+                            anchor.title = "Edit Calendar Details!"
+                            anchor.href = '#'; // Replace with your actual URL
+
+                            anchor.setAttribute('data-toggle', 'modal');
+                            anchor.setAttribute('data-target', '#UpdateModal');
+
+                            icon.className = 'fa fa-edit'; // Font Awesome class for edit icon
+
+                            anchor.appendChild(icon);
+                            anchor.addEventListener('click', function (event) {
+                                $('#CalendarId').val(data.Id);
+                                $('#TeacherId').val(data.TeacherId);
+                                $('#CourseId').val(data.CourseId);
+                                $('#Date').val(data.Date);
+                                $('#StartTime').val(data.StartTime);
+                                $('#EndTime').val(data.EndTime);
+                            });
+
+                            return anchor;
+                        }
+                    },
+                    // {
+                    //     headerName: '',
+                    //     cellRenderer: function (params) {
+                    //         var anchor = document.createElement('a');
+                    //         var data = params.data;
+                    //         var icon = document.createElement('i');
+
+                    //         anchor.title = "SURGERY DETAILS!"
+                    //         anchor.href = 'Surgery?Id=' + data.Id; // Replace with your actual URL
+                    //         icon.className = 'fa fa-medkit'; // Font Awesome class for edit icon
+                    //         icon.style = "color:red";
+
+                    //         anchor.appendChild(icon);
+                    //         anchor.addEventListener('click', function (event) {
+                    //             // console.log("Surgery?Id=" + data.Id);
+                    //             // window.location.href = "Surgery?Id=" + data.Id;
+                    //         });
+
+                    //         return anchor;
+                    //     }
+                    // },
+                    // {
+                    //     headerName: '',
+                    //     cellRenderer: function (params) {
+                    //         var anchor = document.createElement('a');
+                    //         var data = params.data;
+                    //         //console.log(data.IsDischarge);
+
+                    //         var icon = document.createElement('i');
+                    //         anchor.title = "ADD DISCHARGE DETAILS!"
+                    //         anchor.href = 'addbook?Id=' + data.Id + '&discharge=yes'; // Replace with your actual URL
+                    //         icon.className = 'lnr lnr-exit'; // Font Awesome class for edit icon
+                    //         icon.style = "color:green";
+
+                    //         anchor.appendChild(icon);
+                    //         anchor.addEventListener('click', function (event) {
+
+                    //         });
+
+                    //         return anchor;
+                    //     }
+                    // }
+                ]
+            };
+
+            // Your Javascript code to create the data grid
+            const myGridElement = document.querySelector('#myGrid');
+            gridApi = agGrid.createGrid(myGridElement, gridOptions);
+
+            function getBoolean(id) {
+                var field = document.querySelector("#" + id);
+
+                return !!field.checked;
+            }
+
+            function getParams() {
+                return {
+                    allColumns: true,
+                };
+            }
+            window.exportToCsv = function () {
+                gridApi.exportDataAsCsv(getParams());
+            };
+        });
+    </script>
+}

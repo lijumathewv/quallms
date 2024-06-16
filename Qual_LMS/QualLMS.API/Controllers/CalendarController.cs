@@ -6,10 +6,11 @@ namespace QualLMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentCourseController(IStudentCourse repository) : ControllerBase
+    public class CalendarController(ICalendar repository) : ControllerBase
     {
+
         [HttpPost("add")]
-        public IActionResult Add(StudentCourseData model)
+        public IActionResult Add(CalendarData model)
         {
             var response = repository.AddOrUpdate(model);
             return Ok(response);
@@ -36,17 +37,10 @@ namespace QualLMS.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost("studentcourse")]
-        public IActionResult GetStudentCourse(string StudentId)
+        [HttpPost("teachercalendar")]
+        public IActionResult GetTeacherCalendar(string Id)
         {
-            var response = repository.GetStudentCourse(StudentId);
-            return Ok(response);
-        }
-
-        [HttpPost("balance")]
-        public IActionResult BalanceAmount(string StudentId, string CourseId)
-        {
-            var response = repository.GetBalanceAmount(StudentId, CourseId);
+            var response = repository.GetTeacherCalendar(Id);
             return Ok(response);
         }
     }

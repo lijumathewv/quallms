@@ -1,13 +1,14 @@
-﻿using QualLMS.Domain.Models;
+﻿using QualLMS.Domain.APIModels;
 using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.Domain.Contracts
 {
-    public interface IFees
+    public interface ICalendar
     {
         ResponsesWithData GetAll(string OrgId);
         ResponsesWithData Get(string Id);
-        GeneralResponses AddOrUpdate(Fees model);
+        ResponsesWithData GetTeacherCalendar(string Id);
+        GeneralResponses AddOrUpdate(CalendarData model);
         GeneralResponses Delete(string Id);
 
     }

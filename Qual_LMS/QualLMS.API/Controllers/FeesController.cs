@@ -25,9 +25,9 @@ namespace QualLMS.API.Controllers
         }
 
         [HttpPost("all")]
-        public IActionResult GetAll()
+        public IActionResult GetAll(string OrgId)
         {
-            var response = repository.Get();
+            var response = repository.GetAll(OrgId);
             return Ok(response);
         }
 

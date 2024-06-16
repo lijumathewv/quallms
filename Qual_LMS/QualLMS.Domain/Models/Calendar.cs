@@ -23,5 +23,9 @@ namespace QualLMS.Domain.Models
 
         [Required]
         public TimeOnly EndTime { get; set; }
+
+        [Required]
+        public Guid OrganizationId { get; set; }
+        public virtual Organization? Organization { get; set; }
     }
 }

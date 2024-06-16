@@ -12,8 +12,8 @@
     var ErrorMessage = logger.ErrorMessage;
     var SuccessMessage = logger.SuccessMessage;
 
-    var Courses = client.ExecutePostAPI<List<Course>>("Course/all");
-    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/all?Id=" + logger.LoginDetails!.OrganizationId);
+    var Courses = client.ExecutePostAPI<List<Course>>("Course/all?OrgId=" + logger.LoginDetails.OrganizationId);
+    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/allstudents?OrgId=" + logger.LoginDetails!.OrganizationId);
 
     var CourseSelect = new SelectList(Courses, "Id", "CourseName");
     var UserSelect = new SelectList(Users, "Id", "FullName");
