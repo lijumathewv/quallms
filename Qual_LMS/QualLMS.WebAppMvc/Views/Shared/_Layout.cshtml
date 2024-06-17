@@ -1,5 +1,7 @@
 ﻿@using QualvationLibrary
+
 @inject CustomLogger logger
+@inject LoginProperties login
 
 <!DOCTYPE html>
 <html lang="en">
@@ -101,8 +103,8 @@
                                         <img src="images/profile.jpg" class="img-fluid mb-3" alt="Responsive image">
                                     </div>
                                     <div class="profile-r align-self-center">
-                                        <h3 class="sub-title-w3-agileits">@logger.LoginDetails!.FullName</h3>
-                                        <a href="mailto:@logger.LoginDetails!.EmailId">@logger.LoginDetails!.EmailId</a>
+                                        <h3 class="sub-title-w3-agileits">@login!.FullName</h3>
+                                        <a href="mailto:@login!.EmailId">@login!.EmailId</a>
                                     </div>
                                 </div>
                                 <a href="/MyProfile" class="dropdown-item mt-3">

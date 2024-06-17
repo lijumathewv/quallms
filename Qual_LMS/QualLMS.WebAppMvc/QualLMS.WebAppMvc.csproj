@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QualLMS.Domain\QualLMS.Domain.csproj" />
+    <ProjectReference Include="..\QualLMS.Repository\QualLMS.Repository.csproj" />
   </ItemGroup>
 
 </Project>

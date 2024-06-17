@@ -2,9 +2,11 @@
 @using QualLMS.Domain.Models
 @using QualvationLibrary
 
-@model FeesReceivedData
+@model AddFeesReceivedData
+
 @inject CustomLogger logger
 @inject Client client
+@inject LoginProperties login
 
 @{
     var IsError = logger.IsError;
@@ -12,19 +14,10 @@
     var ErrorMessage = logger.ErrorMessage;
     var SuccessMessage = logger.SuccessMessage;
 
-    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/allstudents?OrgId=" + logger.LoginDetails!.OrganizationId);
-    var UserSelect = new SelectList(Users, "Id", "FullName");
+    var UserSelect = new SelectList(Model.Students, "Id", "FullName");
+    var CourseSelect = new SelectList(Model.Courses, "Id", "CourseName");
+    var FeesSelect = new SelectList(Model.Fees, "Id", "FeesName");
 
-    List<StudentCourse> Courses = new List<StudentCourse>();
-    if (Model.CourseId != Guid.Empty)
-    {
-        Courses = client.ExecutePostAPI<List<StudentCourse>>("StudentCourse/studentcourse?StudentId=" + Model.StudentId);
-    }
-
-    var Fees = client.ExecutePostAPI<List<Fees>>("Fees/all?OrgId=" + logger.LoginDetails.OrganizationId);
-    var FeesSelect = new SelectList(Fees, "Id", "FeesName");
-
-    var CourseSelect = new SelectList(Courses, "Id", "CourseName");
 }
 
 <h2 class="main-title-w3layouts mb-2 text-center">Add Receipt</h2>
@@ -46,7 +39,7 @@
                         <div class="form-row">
                             <div class="col-md-4">
                                 <label for="CourseId">Student</label>
-                                @Html.DropDownList("UserId", UserSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
+                                @Html.DropDownList("StudentId", UserSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
                             </div>
                             <div class="col-md-4">
                                 <label for="CourseId">Course</label>
@@ -116,13 +109,13 @@
         var dropDownCourse = document.getElementById('CourseId');
         dropDownCourse.addEventListener('change', handleCourse);
 
-        var dropDownUser = document.getElementById('UserId');
+        var dropDownUser = document.getElementById('StudentId');
         dropDownUser.addEventListener('change', handleUsers);
 
         function handleUsers(event) {
-            var id = $("#UserId").val();
+            var id = $("#StudentId").val();
 
-            var url = "@logger.BaseURL" + "StudentCourse/studentcourse?StudentId=" + id;
+            var url = "/studentcourses?StudentId=" + id;
 
             fetch(url, {
                 method: 'POST',
@@ -141,6 +134,8 @@
                     defaultOption.textContent = '-- Please Select --';
                     course.appendChild(defaultOption);
 
+                    console.log(data);
+
                     var model = JSON.parse(data.returnmodel);
 
                     model.forEach(item => {
@@ -156,12 +151,12 @@
         }
 
         function handleCourse(event) {
-            var UserId = $("#UserId").val();
-            console.log(UserId);
+            var StudentId = $("#StudentId").val();
+            console.log(StudentId);
             var id = $("#CourseId").val();
             console.log(id);
 
-            var url = "@logger.BaseURL" + "StudentCourse/balance?StudentId=" + UserId + "&CourseId=" + id;
+            var url = "@logger.BaseURL" + "/Feesbalance?StudentId=" + StudentId + "&CourseId=" + id;
 
             fetch(url, {
                 method: 'POST',
@@ -189,7 +184,7 @@
             var form = new FormData();
             form.append("Id", generateGUID());
             form.append("FeesName", FeesName);
-            form.append("OrganizationId", '@logger.LoginDetails.OrganizationId.ToString()');
+            form.append("OrganizationId", '@login.OrganizationId.ToString()');
 
             console.log(form);
 

@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class HomeController(CustomLogger logger, ILogger<HomeController> logger1) : Controller
+    public class HomeController(CustomLogger logger, ILogger<HomeController> logger1, LoginProperties login) : Controller
     {
         public IActionResult Index()
         {
@@ -25,7 +25,7 @@ namespace QualLMS.WebAppMvc.Controllers
         {
             logger.ClearMessages();
             logger.IsLogged = false;
-            logger.LoginDetails = null!;
+            login = null!;
             return RedirectToAction("Index", "Login");
         }
 

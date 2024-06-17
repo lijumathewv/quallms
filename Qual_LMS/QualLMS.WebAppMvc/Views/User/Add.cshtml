@@ -8,6 +8,7 @@
 
 @inject CustomLogger logger
 @inject Client client
+@inject LoginProperties login
 
 @{
     var IsError = logger.IsError;
@@ -43,7 +44,7 @@
                         }
                         else
                         {
-                            <input type="hidden" id="OrganizationId" name="OrganizationId" value="@logger.LoginDetails!.OrganizationId" />
+                            <input type="hidden" id="OrganizationId" name="OrganizationId" value="@login!.OrganizationId" />
                         }
                     }
                     <div class="form-group">

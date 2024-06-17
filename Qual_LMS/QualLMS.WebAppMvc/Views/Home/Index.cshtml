@@ -1,5 +1,6 @@
 ﻿@using QualvationLibrary
 @inject CustomLogger logger
+@inject LoginProperties login
 
 @{
     ViewData["Title"] = "Home Page";
@@ -96,9 +97,9 @@
             <div class="header">
                 <div class="text">
                     <img src="images/profile.jpg" class="img-fluid rounded-circle" alt="Responsive image">
-                    <h2>@logger.LoginDetails.FullName</h2>
-                    <a href="mailto:@logger.LoginDetails.EmailId">
-                        <p>@logger.LoginDetails.EmailId</p>
+                    <h2>@login.FullName</h2>
+                    <a href="mailto:@login.EmailId">
+                        <p>@login.EmailId</p>
                     </a>
                 </div>
             </div>

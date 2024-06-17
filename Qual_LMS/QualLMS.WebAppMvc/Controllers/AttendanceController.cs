@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class AttendanceController(Client client, CustomLogger logger) : Controller
+    public class AttendanceController(Client client, CustomLogger logger, LoginProperties login) : Controller
     {
         public IActionResult Index()
         {
@@ -21,7 +21,7 @@ namespace QualLMS.WebAppMvc.Controllers
                 ViewBag.SuccessMessage = "Data updated successfully!";
             }
 
-            var data = client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + logger.LoginDetails.OrganizationId);
+            var data = client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + login.OrganizationId);
 
             return View(data);
         }
@@ -35,7 +35,7 @@ namespace QualLMS.WebAppMvc.Controllers
 
             var model = new AttendanceData
             {
-                AppId = logger.LoginDetails.Id,
+                AppId = login.Id,
                 CurrentDate = istNow,
                 CheckIn = istNow,
             };

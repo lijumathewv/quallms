@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using QualLMS.API.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
@@ -8,7 +6,7 @@ using QualvationLibrary;
 using System.Text.Json;
 using static QualvationLibrary.ServiceResponse;
 
-namespace QualLMS.API.Repositories
+namespace QualLMS.Repository
 {
     public class CalendarRepository(DataContext context, CustomLogger logger) : ICalendar
     {

@@ -6,9 +6,11 @@
 @model List<UserAllData>
 
 @inject CustomLogger logger;
+@inject LoginProperties login
+
 @{
     var data = JsonSerializer.Serialize(Model);
-    Roles CurrentRole = logger.LoginDetails.Role;
+    Roles CurrentRole = login.Role;
 }
 
 @section StylesAndScripts {

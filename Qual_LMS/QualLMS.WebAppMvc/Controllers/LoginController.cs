@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualLMS.WebAppMvc.Models;
 using QualvationLibrary;
+using Serilog;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class LoginController(IConfiguration configuration, Client client, CustomLogger logger) : Controller
+    public class LoginController(IConfiguration configuration, Client client, CustomLogger logger, IApplicationUserAccount repo, LoginProperties login) : Controller
     {
         public IActionResult Index()
         {
@@ -16,30 +18,20 @@ namespace QualLMS.WebAppMvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(Login model)
+        public IActionResult Index(Login model)
         {
             try
             {
-                var appsettings = configuration.GetSection("AppSettings");
-                logger.BaseURL = appsettings.GetSection("API").Value!;
-
                 string json = JsonSerializer.Serialize(model);
-                var res = await client.PostSignInUpAPI("account/login", json);
+                var res = repo.LoginAccount(model);
 
-                logger.IsError = res.Error;
-                logger.ErrorMessage = res.Message;
+                HttpContext.Session.SetString("LoginDetails", JsonSerializer.Serialize(res.value));
 
-                if (res.ReturnModel != null)
-                {
-                    var res1 = JsonSerializer.Deserialize<LoginProperties>(res.ReturnModel);
+                login = res.value;
 
-                    if (res1 != null)
-                    {
-                        logger.IsError = res1.Flag;
-                        logger.ErrorMessage = res1.Message;
-                        logger.LoginDetails = res1;
-                    }
-                }
+                logger.IsError = res.value.IsError;
+                logger.ErrorMessage = res.value.Message;
+
                 if (!logger.IsError)
                 {
                     logger.IsLogged = true;
@@ -48,8 +40,11 @@ namespace QualLMS.WebAppMvc.Controllers
 
                     return RedirectToActionPermanent("Index", "Home");
                 }
+                else
+                {
+                    return View(model);
+                }
 
-                return View(new Login());
             }
             catch (Exception ex)
             {

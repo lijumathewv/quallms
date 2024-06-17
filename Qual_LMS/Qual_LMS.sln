@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualLMS.WebAppMvc", "QualLM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QualvationLibrary", "..\..\QualvationLibrary\QualvationLibrary.csproj", "{021AB31A-54F8-427F-85CE-49B78F8617A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QualLMS.Repository", "QualLMS.Repository\QualLMS.Repository.csproj", "{31B8B2EF-422D-46AD-A4B9-B1EE20A1B3F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{021AB31A-54F8-427F-85CE-49B78F8617A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31B8B2EF-422D-46AD-A4B9-B1EE20A1B3F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B8B2EF-422D-46AD-A4B9-B1EE20A1B3F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31B8B2EF-422D-46AD-A4B9-B1EE20A1B3F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31B8B2EF-422D-46AD-A4B9-B1EE20A1B3F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

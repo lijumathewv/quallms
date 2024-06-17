@@ -2,9 +2,15 @@
 @using QualvationLibrary
 
 @inject CustomLogger logger
+@inject LoginProperties login
 
 @{
-    Roles Role = logger.LoginDetails.Role;
+    Roles Role = Roles.None;
+
+    if (login != null)
+    {
+        Role = login.Role;
+    }
 }
 
 <!-- Sidebar Holder -->
@@ -17,7 +23,7 @@
     </div>
     <div class="profile-bg"></div>
     <ul class="list-unstyled components">
-        @switch ((Roles)Role)
+        @switch (Role)
         {
             case Roles.Students:
             case Roles.Teachers:

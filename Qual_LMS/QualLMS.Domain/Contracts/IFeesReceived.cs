@@ -5,7 +5,7 @@ namespace QualLMS.Domain.Contracts
 {
     public interface IFeesReceived
     {
-        ResponsesWithData Get();
+        ResponsesWithData GetAll(string OrgId);
         ResponsesWithData Get(string Id);
         GeneralResponses AddOrUpdate(FeesReceivedData model);
         GeneralResponses Delete(string Id);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using QualLMS.Domain.APIModels;
+using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualLMS.WebAppMvc.Models;
 using QualvationLibrary;
@@ -8,13 +9,21 @@ using System.Text.Json;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class OrganizationController(IConfiguration configuration, CustomLogger logger, ILogger<HomeController> logger1, Client client) : Controller
+    public class OrganizationController(IConfiguration configuration, CustomLogger logger, ILogger<HomeController> logger1, IOrganization repo, Client client) : Controller
     {
         public IActionResult Index()
         {
             try
             {
-                var data = client.ExecutePostAPI<List<Organization>>("Organization/all");
+                var response = repo.Get();// client.ExecutePostAPI<List<Organization>>("Organization/all");
+                if (!response.flag)
+                {
+                    logger.IsError = true;
+                    logger.ErrorMessage = response.message;
+                }
+
+                var data = client.ParseResult<List<Organization>>(response.returnmodel);
+
                 return View(data);
             }
             catch (Exception ex)
@@ -26,46 +35,33 @@ namespace QualLMS.WebAppMvc.Controllers
 
         public IActionResult Add(string Id)
         {
-            try
+            Organization Model = new Organization();
+            if (!string.IsNullOrEmpty(Id))
             {
-                Organization Model = new Organization();
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    Model = client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
-                }
-                return View(Model);
+                var response = repo.Get(Id);//client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
+                Model = client.ParseResult<Organization>(response.returnmodel);
             }
-            catch (Exception ex)
-            {
-                logger.GenerateException(ex);
-                return View(new Organization());
-            }
+
+            return View(Model);
         }
 
         [HttpPost]
         public IActionResult Add(Organization model)
         {
-            try
+            //string json = JsonSerializer.Serialize(model);
+            var res = repo.AddOrUpdate(model);//client.ExecutePostAPI<ResultCommon>("organization/add", json);
+
+            if (res.flag)
             {
-                string json = JsonSerializer.Serialize(model);
-
-                var res = client.ExecutePostAPI<ResultCommon>("organization/add", json);
-
-                logger.IsError = res.Error;
-                logger.IsSuccess = !res.Error;
-
-                if (res.Error)
-                {
-                    throw new Exception(res.Message);
-                }
-                logger.SuccessMessage = res.Message;
-                return View(model);
+                logger.IsSuccess = res.flag;
+                logger.SuccessMessage = res.message;
             }
-            catch (Exception ex)
+            else
             {
-                logger.GenerateException(ex);
-                return View(model);
+                logger.IsError = !res.flag;
+                logger.ErrorMessage = res.message;
             }
+            return View(model);
         }
     }
 }

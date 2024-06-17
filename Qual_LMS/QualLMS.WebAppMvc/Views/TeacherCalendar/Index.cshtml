@@ -1,26 +1,15 @@
-﻿@using System.Text.Json
-@using QualLMS.Domain.APIModels
-@using QualLMS.Domain.Models
-@using QualvationLibrary
+﻿@using QualLMS.Domain.APIModels
 
-@model List<CalendarData>
-
-@inject CustomLogger logger
-@inject Client client
+@model TeacherCalendarData
 
 @{
-    var data = JsonSerializer.Serialize(Model);
-
     var IsError = ViewBag.IsError;
     var IsSuccess = ViewBag.IsSuccess;
     var ErrorMessage = ViewBag.ErrorMessage;
     var SuccessMessage = ViewBag.SuccessMessage;
 
-    var Users = client.ExecutePostAPI<List<UserAllData>>("Account/allteachers?OrgId=" + logger.LoginDetails!.OrganizationId);
-    var UserSelect = new SelectList(Users, "Id", "FullName");
-
-    var Courses = client.ExecutePostAPI<List<Course>>("Course/all?OrgId=" + logger.LoginDetails.OrganizationId);
-    var CourseSelect = new SelectList(Courses, "Id", "CourseName");
+    var Users = new SelectList(Model.Users, "Id", "FullName");
+    var Courses = new SelectList(Model.Courses, "Id", "CourseName");
 }
 
 @section StylesAndScripts {
@@ -77,11 +66,11 @@
                         <label for="TeacherId">Teacher</label>
                         <input type="hidden" class="form-control" id="CalendarId" name="CalendarId">
                         <label for="TeacherId">Teacher</label>
-                        @Html.DropDownList("TeacherId", UserSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
+                        @Html.DropDownList("TeacherId", Users, "-- Please Select --", new { @class = "form-control" })
                     </div>
                     <div class="form-group">
                         <label for="CourseId">Course</label>
-                        @Html.DropDownList("CourseId", CourseSelect as SelectList, "-- Please Select --", new { @class = "form-control" })
+                        @Html.DropDownList("CourseId", Courses, "-- Please Select --", new { @class = "form-control" })
                     </div>
                     <div class="form-row">
                         <div class="col-md-4">
@@ -119,7 +108,7 @@
     <script>
         $(document).ready(function () {
             console.log("ready!");
-            var model = @Html.Raw(data);
+            var model = @Html.Raw(Model.Data);
             //console.log(model);
 
             let gridApi;

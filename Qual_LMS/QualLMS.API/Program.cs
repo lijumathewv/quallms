@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using QualLMS.API.Data;
-using QualLMS.API.Repositories;
 using QualLMS.Domain.Contracts;
-using QualLMS.Domain.Models;
+using QualLMS.Repository;
 using QualvationLibrary;
 using Serilog;
 using System;

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using QualLMS.API.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
@@ -8,7 +6,7 @@ using QualvationLibrary;
 using System.Text.Json;
 using static QualvationLibrary.ServiceResponse;
 
-namespace QualLMS.API.Repositories
+namespace QualLMS.Repository
 {
     public class StudentCourseRepository(DataContext context, CustomLogger logger) : IStudentCourse
     {
@@ -114,22 +112,22 @@ namespace QualLMS.API.Repositories
         {
             try
             {
-                var s = context.StudentCourse.Include(i => i.Course).FirstOrDefault(h => h.Id == new Guid(Id));
-
-                var user = context.ApplicationUser.FirstOrDefault(u => u.Id == s.StudentId);
-
-                var data = new StudentCourseData
-                {
-                    Id = s.Id,
-                    StudentId = s.StudentId,
-                    StudentName = user.FullName,
-                    CourseId = s.CourseId,
-                    CourseName = s.Course.CourseName,
-                    RecentEducation = s.RecentEducation,
-                    AdmissionNumber = s.AdmissionNumber,
-                    CourseFees = s.CourseFees,
-                    OrganizationId = s.OrganizationId
-                };
+                var data = context.StudentCourse
+                    .Include(i => i.Course)
+                    .Include(i => i.Student)
+                    .Select(s => new StudentCourseData
+                    {
+                        Id = s.Id,
+                        StudentId = s.StudentId,
+                        StudentName = s.Student.FullName,
+                        CourseId = s.CourseId,
+                        CourseName = s.Course.CourseName,
+                        RecentEducation = s.RecentEducation,
+                        AdmissionNumber = s.AdmissionNumber,
+                        CourseFees = s.CourseFees,
+                        OrganizationId = s.OrganizationId
+                    })
+                    .FirstOrDefault(s => s.Id == new Guid(Id));
 
                 return new ResponsesWithData(true, JsonSerializer.Serialize(data), "Data Retrieved!");
             }

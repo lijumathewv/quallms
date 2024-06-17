@@ -5,12 +5,13 @@
 
 @model List<AttendanceData>
 
+@inject LoginProperties login
 @inject CustomLogger logger
 
 @{
     var data = JsonSerializer.Serialize(Model);
 
-    Roles CurrentRole = logger.LoginDetails.Role;
+    Roles CurrentRole = login.Role;
 
     bool IsError = false;
     string ErrorMessage = "";
@@ -78,7 +79,7 @@
             console.log('IST date:', istDate);
 
             const formData = new FormData();
-            formData.append("AppId", '@logger.LoginDetails.Id')
+            formData.append("AppId", '@login.Id')
             formData.append("CurrentDate", istDate)
             formData.append("CheckIn", istDate)
 
