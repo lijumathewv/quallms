@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class OrganizationController(IConfiguration configuration, CustomLogger logger, ILogger<HomeController> logger1, IOrganization repo, Client client) : Controller
+    public class OrganizationController(IConfiguration configuration, CustomLogger logger, ILogger<HomeController> logger1, IOrganization repo, Client client) : BaseController
     {
         public IActionResult Index()
         {
@@ -28,40 +28,57 @@ namespace QualLMS.WebAppMvc.Controllers
             }
             catch (Exception ex)
             {
+
                 logger.GenerateException(ex);
-                return View(new List<Organization>());
+                return StatusCode(500, "Internal server error");
             }
         }
 
         public IActionResult Add(string Id)
         {
-            Organization Model = new Organization();
-            if (!string.IsNullOrEmpty(Id))
+            try
             {
-                var response = repo.Get(Id);//client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
-                Model = client.ParseResult<Organization>(response.returnmodel);
-            }
+                Organization Model = new Organization();
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    var response = repo.Get(Id);//client.ExecutePostAPI<Organization>("Organization/get?Id=" + Id);
+                    Model = client.ParseResult<Organization>(response.returnmodel);
+                }
 
-            return View(Model);
+                return View(Model);
+            }
+            catch (Exception ex)
+            {
+                logger.GenerateException(ex);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
         public IActionResult Add(Organization model)
         {
-            //string json = JsonSerializer.Serialize(model);
-            var res = repo.AddOrUpdate(model);//client.ExecutePostAPI<ResultCommon>("organization/add", json);
+            try
+            {
+                //string json = JsonSerializer.Serialize(model);
+                var res = repo.AddOrUpdate(model);//client.ExecutePostAPI<ResultCommon>("organization/add", json);
 
-            if (res.flag)
-            {
-                logger.IsSuccess = res.flag;
-                logger.SuccessMessage = res.message;
+                if (res.flag)
+                {
+                    logger.IsSuccess = res.flag;
+                    logger.SuccessMessage = res.message;
+                }
+                else
+                {
+                    logger.IsError = !res.flag;
+                    logger.ErrorMessage = res.message;
+                }
+                return View(model);
             }
-            else
+            catch (Exception ex)
             {
-                logger.IsError = !res.flag;
-                logger.ErrorMessage = res.message;
+                logger.GenerateException(ex);
+                return StatusCode(500, "Internal server error");
             }
-            return View(model);
         }
     }
 }

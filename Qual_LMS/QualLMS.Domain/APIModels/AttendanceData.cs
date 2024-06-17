@@ -32,7 +32,7 @@ namespace QualLMS.Domain.APIModels
 
     public class ViewAttendanceData
     {
-        public List<AttendanceData> Data { get; set; }
+        public List<AttendanceData> Data { get; set; } = null!;
 
         public bool IsCheckedIn { get; set; }
 

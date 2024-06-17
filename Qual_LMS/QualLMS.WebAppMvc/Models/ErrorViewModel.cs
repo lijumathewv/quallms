@@ -1,3 +1,5 @@
+using QualLMS.WebAppMvc.Controllers;
+
 namespace QualLMS.WebAppMvc.Models
 {
     public class ErrorViewModel
@@ -6,6 +8,11 @@ namespace QualLMS.WebAppMvc.Models
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        public Exception Exception { get; set; }
+        public string ErrorMessage { get; set; }
+
+        public string Source { get; set; }
+        public string StackTrace { get; set; }
+        public string ErrorPath { get; set; }
+        public Exception? InnerException { get; set; }
     }
 }

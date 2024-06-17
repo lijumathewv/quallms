@@ -5,9 +5,11 @@
 @model AddStudentCourseData
 @inject CustomLogger logger
 @inject Client client
-@inject LoginProperties login
 
 @{
+
+    string OrganizationId = logger.OrganizationId.ToString();
+
     var IsError = logger.IsError;
     var IsSuccess = logger.IsSuccess;
     var ErrorMessage = logger.ErrorMessage;
@@ -131,7 +133,7 @@
             var form = new FormData();
             form.append("Id", generateGUID());
             form.append("FeesName", FeesName);
-            form.append("OrganizationId", '@login.OrganizationId.ToString()');
+            form.append("OrganizationId", '@OrganizationId');
 
             console.log(form);
 

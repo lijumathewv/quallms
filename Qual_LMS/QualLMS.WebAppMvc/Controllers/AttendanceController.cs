@@ -7,53 +7,52 @@ using System.Text.Json;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class AttendanceController(Client client, CustomLogger logger, LoginProperties login, IAttendance repo) : Controller
+    public class AttendanceController(ILogger<HomeController> _logger, Client client, CustomLogger logger, IAttendance repo) : BaseController
     {
         public IActionResult Index()
         {
-            if (login.Id == Guid.Empty)
+            try
             {
-                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
-            }
+                if (TempData["IsError"] != null)
+                {
+                    ViewBag.IsError = TempData["IsError"];
+                    ViewBag.ErrorMessage = logger.ErrorMessage;
+                }
+                if (TempData["IsSuccess"] != null)
+                {
+                    ViewBag.IsSuccess = TempData["IsSuccess"];
+                    ViewBag.SuccessMessage = "Data updated successfully!";
+                }
+                var response = repo.GetMyAttendance(new Guid(GetSessionValue("LoginId")));//client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + new Guid(GetSessionValue("OrganizationId")));
 
-            if (TempData["IsError"] != null)
+                ViewAttendanceData Model = new ViewAttendanceData();
+
+                var data = client.ParseResult<List<AttendanceData>>(response.returnmodel);
+
+                Model.Data = data;
+                Model.IsCheckedIn = IsCheckedIn();
+                Model.IsCheckedOut = IsCheckedOut();
+
+                return View(Model);
+            }
+            catch (Exception ex)
             {
-                ViewBag.IsError = TempData["IsError"];
-                ViewBag.ErrorMessage = logger.ErrorMessage;
+                logger.GenerateException(ex);
+                return StatusCode(500, "Internal server error");
             }
-            if (TempData["IsSuccess"] != null)
-            {
-                ViewBag.IsSuccess = TempData["IsSuccess"];
-                ViewBag.SuccessMessage = "Data updated successfully!";
-            }
-            var response = repo.GetMyAttendance(login.Id);//client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + login.OrganizationId);
-            
-            ViewAttendanceData Model = new ViewAttendanceData();
-
-            var data = client.ParseResult<List<AttendanceData>>(response.returnmodel);
-
-            Model.Data = data;
-            Model.IsCheckedIn = IsCheckedIn();
-            Model.IsCheckedOut = IsCheckedOut();
-
-            return View(Model);
         }
 
         [HttpPost("Checkin")]
         public string CheckIn()
         {
-            if (login.Id == Guid.Empty)
-            {
-                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
-            }
-
+            
             DateTime utcNow = DateTime.UtcNow;
             TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, istTimeZone);
 
             var model = new AttendanceData
             {
-                AppId = login.Id,
+                AppId = new Guid(GetSessionValue("LoginId")),
                 CurrentDate = new DateOnly(istNow.Date.Year, istNow.Date.Month, istNow.Date.Day),
                 CheckIn = istNow,
             };
@@ -66,18 +65,13 @@ namespace QualLMS.WebAppMvc.Controllers
         [HttpPost("CheckOut")]
         public string CheckOut()
         {
-            if (login.Id == Guid.Empty)
-            {
-                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
-            }
-
             DateTime utcNow = DateTime.UtcNow;
             TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, istTimeZone);
 
             var model = new AttendanceData
             {
-                AppId = login.Id,
+                AppId = new Guid(GetSessionValue("LoginId")),
                 CurrentDate = new DateOnly(istNow.Date.Year, istNow.Date.Month, istNow.Date.Day),
                 CheckOut = istNow,
             };
@@ -89,12 +83,7 @@ namespace QualLMS.WebAppMvc.Controllers
 
         private bool IsCheckedIn()
         {
-            if (login.Id == Guid.Empty)
-            {
-                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
-            }
-
-            var response = repo.GetAttendanceForToday(login.Id);
+            var response = repo.GetAttendanceForToday(new Guid(GetSessionValue("LoginId")));
 
             if (response == null)
             {
@@ -113,12 +102,7 @@ namespace QualLMS.WebAppMvc.Controllers
         
         private bool IsCheckedOut()
         {
-            if (login.Id == Guid.Empty)
-            {
-                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
-            }
-
-            var response = repo.GetAttendanceForToday(login.Id);
+            var response = repo.GetAttendanceForToday(new Guid(GetSessionValue("LoginId")));
 
             if (response == null)
             {

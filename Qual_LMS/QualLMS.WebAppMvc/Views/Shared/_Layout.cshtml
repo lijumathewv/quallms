@@ -1,12 +1,11 @@
 ﻿@using QualvationLibrary
 
 @inject CustomLogger logger
-@inject LoginProperties login
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Learning Management System | @ViewData["Title"]</title>
+    <title>Learning Management System @logger.LoginRole | @ViewData["Title"]</title>
     <!-- Meta Tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
@@ -103,8 +102,8 @@
                                         <img src="images/profile.jpg" class="img-fluid mb-3" alt="Responsive image">
                                     </div>
                                     <div class="profile-r align-self-center">
-                                        <h3 class="sub-title-w3-agileits">@login!.FullName</h3>
-                                        <a href="mailto:@login!.EmailId">@login!.EmailId</a>
+                                        <h3 class="sub-title-w3-agileits">login!.FullName</h3>
+                                        <a href="mailto:login!.EmailId">login!.EmailId</a>
                                     </div>
                                 </div>
                                 <a href="/MyProfile" class="dropdown-item mt-3">

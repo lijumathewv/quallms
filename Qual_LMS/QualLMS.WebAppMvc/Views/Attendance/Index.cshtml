@@ -5,13 +5,12 @@
 
 @model ViewAttendanceData
 
-@inject LoginProperties login
 @inject CustomLogger logger
 
 @{
     var data = JsonSerializer.Serialize(Model.Data);
 
-    Roles CurrentRole = login.Role;
+    Roles CurrentRole = logger.LoginRole;
 
     bool IsError = false;
     string ErrorMessage = "";

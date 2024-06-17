@@ -13,7 +13,7 @@ namespace QualLMS.Domain.Models
 
         [Required]
         public Guid CourseId { get; set; }
-        public virtual Course Course { get; set; }
+        public virtual Course? Course { get; set; }
 
         [Required]
         public DateOnly Date { get; set; }

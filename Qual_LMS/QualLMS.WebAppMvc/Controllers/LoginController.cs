@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class LoginController(IConfiguration configuration, Client client, CustomLogger logger, IApplicationUserAccount repo, LoginProperties login) : Controller
+    public class LoginController(IConfiguration configuration, Client client, CustomLogger logger, IApplicationUserAccount repo) : BaseController
     {
         public IActionResult Index()
         {
@@ -25,9 +25,17 @@ namespace QualLMS.WebAppMvc.Controllers
                 string json = JsonSerializer.Serialize(model);
                 var res = repo.LoginAccount(model);
 
-                HttpContext.Session.SetString("LoginDetails", JsonSerializer.Serialize(res.value));
+                logger.LoginRole = res.value.Role;
+                logger.OrganizationId = res.value.OrganizationId;
+                logger.LoginId = res.value.Id;
 
-                login = res.value;
+                SetSessionValue("LoginId", res.value.Id.ToString());
+                SetSessionValue("LoginRole", res.value.Role.ToString());
+                SetSessionValue("OrganizationId", res.value.OrganizationId.ToString());
+
+                //HttpContext.Session.SetString("OrganizationId", res.value.OrganizationId.ToString());
+                //HttpContext.Session.SetString("LoginId", res.value.Id.ToString());
+                //HttpContext.Session.SetString("LoginDetails", JsonSerializer.Serialize(res.value));
 
                 logger.IsError = res.value.IsError;
                 logger.ErrorMessage = res.value.Message;

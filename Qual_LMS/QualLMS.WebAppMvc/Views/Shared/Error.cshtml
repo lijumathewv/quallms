@@ -13,13 +13,15 @@
     </p>
 }
 
-<h3>@Model.Exception.Message</h3>
-@if (Model.Exception.InnerException != null)
+<h3 class="text-danger">Exceptions</h3>
+<p>ErrorMessage :: @Model.ErrorMessage</p>
+<p>Source :: @Model.Source</p>
+<p>ErrorPath :: @Model.ErrorPath</p>
+<p>StackTrace :: @Model.StackTrace</p>
+
+@if (Model.InnerException != null)
 {
-    <p>
-        @Model.Exception.InnerException.Message
-    </p>
+    <h3 class="text-danger">Inner Exception</h3>
+    <p>InnerException ErrorMessage :: @Model.InnerException.Message</p>
+    <p>InnerException StackTrace :: @Model.InnerException.StackTrace</p>
 }
-<p>
-    @Model.Exception.StackTrace
-</p>

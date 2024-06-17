@@ -6,13 +6,14 @@
 
 @inject CustomLogger logger
 @inject Client client
-@inject LoginProperties login
 
 @{
     var IsError = logger.IsError;
     var IsSuccess = logger.IsSuccess;
     var ErrorMessage = logger.ErrorMessage;
     var SuccessMessage = logger.SuccessMessage;
+
+    string OrganizationId = logger.OrganizationId.ToString();
 
     var UserSelect = new SelectList(Model.Students, "Id", "FullName");
     var CourseSelect = new SelectList(Model.Courses, "Id", "CourseName");
@@ -184,7 +185,7 @@
             var form = new FormData();
             form.append("Id", generateGUID());
             form.append("FeesName", FeesName);
-            form.append("OrganizationId", '@login.OrganizationId.ToString()');
+            form.append("OrganizationId", '@OrganizationId');
 
             console.log(form);
 

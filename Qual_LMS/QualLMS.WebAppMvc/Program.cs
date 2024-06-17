@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
 using QualLMS.Domain.Contracts;
 using QualLMS.Repository;
+using QualLMS.WebAppMvc.Data;
 using QualvationLibrary;
 using Serilog;
 
@@ -18,7 +19,7 @@ builder.Services.AddDbContext<DataContext>(
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.IdleTimeout = TimeSpan.FromMinutes(45);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -35,9 +36,12 @@ builder.Services.AddTransient<IStudentCourse, StudentCourseRepository>();
 
 builder.Services.AddTransient<ICalendar, CalendarRepository>();
 
+builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
 builder.Services.AddSingleton<CustomLogger>();
 builder.Services.AddSingleton<Client>();
 builder.Services.AddSingleton<LoginProperties>();
+
 builder.Services.AddHttpContextAccessor();
 
 //Configure Logging
@@ -49,8 +53,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.Map(le => new DateTime(le.Timestamp.Year, le.Timestamp.Month, le.Timestamp.Day),
         (day, wt) => wt.File($"./Logs/{day:yyyyMMdd}/Log_.log",
-                             rollingInterval: RollingInterval.Minute,
-                             fileSizeLimitBytes: 10,
+                             rollingInterval: RollingInterval.Day,
+                             fileSizeLimitBytes: 1024 * 1024,
                              rollOnFileSizeLimit: true,
                              retainedFileCountLimit: 30,
                              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:t4}] {Message:j}{NewLine}"),
@@ -61,11 +65,11 @@ builder.Host.UseSerilog();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -78,6 +82,7 @@ app.UseAuthorization();
 
 app.UseSession();
 
+app.UseMiddleware<ExceptionMiddleware>();
 //app.UseMiddleware<ClientIpEnricherMiddleware>();
 app.UseSerilogRequestLogging(); // Add Serilog request logging
 

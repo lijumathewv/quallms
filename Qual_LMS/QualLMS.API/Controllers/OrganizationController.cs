@@ -11,19 +11,19 @@ namespace QualLMS.API.Controllers
     public class OrganizationController(IOrganization organization) : ControllerBase
     {
         [HttpPost("add")]
-        public async Task<IActionResult> AddOrganization(Organization model)
+        public IActionResult AddOrganization(Organization model)
         {
             var response = organization.AddOrUpdate(model);
             return Ok(response);
         }
         [HttpPost("all")]
-        public async Task<IActionResult> AllOrganization()
+        public IActionResult AllOrganization()
         {
             var response = organization.Get();
             return Ok(response);
         }
         [HttpPost("get")]
-        public async Task<IActionResult> GetOrganization(string Id)
+        public IActionResult GetOrganization(string Id)
         {
             var response = organization.Get(Id);
             return Ok(response);

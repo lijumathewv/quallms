@@ -8,9 +8,11 @@
 
 @inject CustomLogger logger
 @inject Client client
-@inject LoginProperties login
 
 @{
+
+    string OrganizationId = logger.OrganizationId.ToString();
+
     var IsError = logger.IsError;
     var IsSuccess = logger.IsSuccess;
     var ErrorMessage = logger.ErrorMessage;
@@ -44,7 +46,7 @@
                         }
                         else
                         {
-                            <input type="hidden" id="OrganizationId" name="OrganizationId" value="@login!.OrganizationId" />
+                            <input type="hidden" id="OrganizationId" name="OrganizationId" value="@OrganizationId" />
                         }
                     }
                     <div class="form-group">

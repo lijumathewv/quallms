@@ -91,11 +91,11 @@ namespace QualLMS.Repository
                     .Select(s => new FeesReceivedData
                     {
                         Id = s.Id,
-                        StudentName = s.Student.FullName,
+                        StudentName = s.Student!.FullName!,
                         CourseId = s.CourseId,
-                        CourseName = s.Course.CourseName,
+                        CourseName = s.Course!.CourseName,
                         FeesId = s.FeesId,
-                        FeesName = s.Fees.FeesName,
+                        FeesName = s.Fees!.FeesName,
                         ReceiptNumber = s.ReceiptNumber,
                         ReceiptDate = s.ReceiptDate,
                         ReceiptFees = s.ReceiptFees,
@@ -124,9 +124,9 @@ namespace QualLMS.Repository
                     {
                         Id = s.Id,
                         CourseId = s.CourseId,
-                        CourseName = s.Course.CourseName,
+                        CourseName = s.Course!.CourseName,
                         FeesId = s.FeesId,
-                        FeesName = s.Fees.FeesName,
+                        FeesName = s.Fees!.FeesName,
                         ReceiptNumber = s.ReceiptNumber,
                         ReceiptDate = s.ReceiptDate,
                         ReceiptFees = s.ReceiptFees,
