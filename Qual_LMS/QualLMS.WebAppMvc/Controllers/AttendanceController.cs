@@ -1,15 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QualLMS.Domain.APIModels;
+using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualvationLibrary;
 using System.Text.Json;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
-    public class AttendanceController(Client client, CustomLogger logger, LoginProperties login) : Controller
+    public class AttendanceController(Client client, CustomLogger logger, LoginProperties login, IAttendance repo) : Controller
     {
         public IActionResult Index()
         {
+            if (login.Id == Guid.Empty)
+            {
+                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
+            }
+
             if (TempData["IsError"] != null)
             {
                 ViewBag.IsError = TempData["IsError"];
@@ -20,15 +26,27 @@ namespace QualLMS.WebAppMvc.Controllers
                 ViewBag.IsSuccess = TempData["IsSuccess"];
                 ViewBag.SuccessMessage = "Data updated successfully!";
             }
+            var response = repo.GetMyAttendance(login.Id);//client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + login.OrganizationId);
+            
+            ViewAttendanceData Model = new ViewAttendanceData();
 
-            var data = client.ExecutePostAPI<List<AttendanceData>>("Attendance/list-all-attendance?Id=" + login.OrganizationId);
+            var data = client.ParseResult<List<AttendanceData>>(response.returnmodel);
 
-            return View(data);
+            Model.Data = data;
+            Model.IsCheckedIn = IsCheckedIn();
+            Model.IsCheckedOut = IsCheckedOut();
+
+            return View(Model);
         }
 
         [HttpPost("Checkin")]
-        public IActionResult CheckIn()
+        public string CheckIn()
         {
+            if (login.Id == Guid.Empty)
+            {
+                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
+            }
+
             DateTime utcNow = DateTime.UtcNow;
             TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, istTimeZone);
@@ -36,17 +54,96 @@ namespace QualLMS.WebAppMvc.Controllers
             var model = new AttendanceData
             {
                 AppId = login.Id,
-                CurrentDate = istNow,
+                CurrentDate = new DateOnly(istNow.Date.Year, istNow.Date.Month, istNow.Date.Day),
                 CheckIn = istNow,
             };
 
-            var data = client.ExecutePostAPI<ResultCommon>("Attendance/checkin", JsonSerializer.Serialize(model));
+            var response = repo.CheckIn(model);//client.ExecutePostAPI<ResultCommon>("Attendance/checkin", JsonSerializer.Serialize(model));
 
-            TempData["IsError"] = data.Error;
+            return JsonSerializer.Serialize(response);
+        }
 
-            TempData["IsSuccess"] = !data.Error;
+        [HttpPost("CheckOut")]
+        public string CheckOut()
+        {
+            if (login.Id == Guid.Empty)
+            {
+                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
+            }
 
-            return RedirectToAction("Index");
+            DateTime utcNow = DateTime.UtcNow;
+            TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, istTimeZone);
+
+            var model = new AttendanceData
+            {
+                AppId = login.Id,
+                CurrentDate = new DateOnly(istNow.Date.Year, istNow.Date.Month, istNow.Date.Day),
+                CheckOut = istNow,
+            };
+
+            var response = repo.CheckOut(model);//client.ExecutePostAPI<ResultCommon>("Attendance/checkin", JsonSerializer.Serialize(model));
+
+            return JsonSerializer.Serialize(response);
+        }
+
+        private bool IsCheckedIn()
+        {
+            if (login.Id == Guid.Empty)
+            {
+                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
+            }
+
+            var response = repo.GetAttendanceForToday(login.Id);
+
+            if (response == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (response.returnmodel == null)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+        }
+        
+        private bool IsCheckedOut()
+        {
+            if (login.Id == Guid.Empty)
+            {
+                login = JsonSerializer.Deserialize<LoginProperties>(HttpContext.Session.GetString("LoginDetails"));
+            }
+
+            var response = repo.GetAttendanceForToday(login.Id);
+
+            if (response == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (response.returnmodel == null)
+                {
+                    return false;
+                }
+                var data = JsonSerializer.Deserialize<Attendance>(response.returnmodel);
+                if (data == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (data.CheckOut == null)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

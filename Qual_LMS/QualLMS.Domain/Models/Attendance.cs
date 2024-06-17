@@ -9,7 +9,7 @@ namespace QualLMS.Domain.Models
         public Guid Id { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public Guid ApplicationUserId { get; set; }
         public virtual ApplicationUser? ApplicationUser { get; set; }
 
         [Required]

@@ -99,23 +99,23 @@
 @section Scripts {
     <script>
 
-        var dropDown = document.getElementById('CourseId');
+        var dropDown = document.getElementById('Data_CourseId');
         dropDown.addEventListener('change', handleCourse);
 
         function handleCourse(event) {
-            var id = event.target.value;
-            var url = "@logger.BaseURL" + "Course/getfees?Id=" + id;
+            var url = "/GetFees?CourseId=" + $('#Data_CourseId').val();
+            console.log(url);
 
             fetch(url, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data.returnmodel);
-                    $('#CourseFees').val(data.returnmodel);
+                    console.log(data);
+                    $('#CourseFees').val(data);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);

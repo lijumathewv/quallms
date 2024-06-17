@@ -15,7 +15,7 @@ namespace QualLMS.Domain.APIModels
         [Required]
         [DataType(DataType.DateTime)]
         [JsonPropertyName("attendanceDate")]
-        public DateTime CurrentDate { get; set; }
+        public DateOnly? CurrentDate { get; set; }
 
         [DataType(DataType.DateTime)]
         [JsonPropertyName("checkIn")]
@@ -28,5 +28,14 @@ namespace QualLMS.Domain.APIModels
         public string Role { get; set; } = string.Empty;
 
         public string FullName { get; set; } = string.Empty;
+    }
+
+    public class ViewAttendanceData
+    {
+        public List<AttendanceData> Data { get; set; }
+
+        public bool IsCheckedIn { get; set; }
+
+        public bool IsCheckedOut { get; set; }
     }
 }

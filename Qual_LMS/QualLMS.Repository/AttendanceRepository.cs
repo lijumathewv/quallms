@@ -1,4 +1,5 @@
-﻿using QualLMS.Domain.APIModels;
+﻿using Microsoft.EntityFrameworkCore;
+using QualLMS.Domain.APIModels;
 using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using System.Data;
@@ -14,14 +15,14 @@ namespace QualLMS.Repository
             ResponsesWithData? responses = null;
             try
             {
-                DateOnly currentDate = DateOnly.Parse(attendance.CurrentDate.ToShortDateString());
+                DateOnly? currentDate = attendance.CurrentDate;
                 TimeOnly checkin = TimeOnly.Parse(Convert.ToDateTime(attendance.CheckIn).ToShortTimeString());
 
                 var calender = (from c in dataContext.Calendar
                                 join sc in dataContext.StudentCourse on c.CourseId equals sc.CourseId
                                 where sc.StudentId == attendance.AppId
                                 && c.Date == currentDate
-                                && c.StartTime < checkin && c.EndTime > checkin
+                                && checkin > c.StartTime && checkin < c.EndTime
                                 select c).ToList();
 
                 if (calender.Count == 0)
@@ -30,14 +31,14 @@ namespace QualLMS.Repository
                 }
                 else
                 {
-                    var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.UserId == attendance.AppId);
+                    var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.ApplicationUserId == attendance.AppId);
 
                     if (data == null)
                     {
                         dataContext.Attendance.Add(new Attendance
                         {
                             Id = Guid.NewGuid(),
-                            UserId = attendance.AppId,
+                            ApplicationUserId = attendance.AppId,
                             AttendanceDate = currentDate,
                             CheckIn = attendance.CheckIn
                         });
@@ -66,9 +67,9 @@ namespace QualLMS.Repository
             ResponsesWithData? responses = null;
             try
             {
-                DateOnly currentDate = new DateOnly(attendance.CurrentDate.Year, attendance.CurrentDate.Month, attendance.CurrentDate.Day);
+                DateOnly? currentDate = attendance.CurrentDate;
 
-                var data = dataContext.Attendance.FirstOrDefault(o => o.AttendanceDate == currentDate && o.UserId == attendance.AppId);
+                var data = dataContext.Attendance.FirstOrDefault(a => a.ApplicationUserId == attendance.AppId && a.AttendanceDate == currentDate);
 
                 if (data == null)
                 {
@@ -100,10 +101,23 @@ namespace QualLMS.Repository
         public ResponsesWithData GetMyAttendance(Guid Id)
         {
             ResponsesWithData responses;
-            List<Attendance> data = new List<Attendance>();
+            List<AttendanceData> data = new List<AttendanceData>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.UserId == Id).OrderBy(o => o.AttendanceDate).ToList();
+                data = dataContext.Attendance
+                    .Include(a => a.ApplicationUser)
+                    .Where(o => o.ApplicationUserId == Id).OrderByDescending(o => o.AttendanceDate)
+                    .Select(a => new AttendanceData
+                    {
+                        Id = a.Id.ToString(),
+                        AppId = a.ApplicationUserId,
+                        CurrentDate = a.AttendanceDate,
+                        CheckIn = a.CheckIn,
+                        CheckOut = a.CheckOut,
+                        Role = a.ApplicationUser.Role.ToString(),
+                        FullName = a.ApplicationUser.FullName
+                    })
+                    .ToList();
 
                 if (data == null)
                 {
@@ -130,12 +144,12 @@ namespace QualLMS.Repository
             {
                 data = (from usr in dataContext.ApplicationUser.Where(o => o.OrganizationId == OrgId)
                            join att in dataContext.Attendance
-                           on usr.Id equals att.UserId
-                           select new AttendanceData
+                           on usr.Id equals att.ApplicationUserId
+                        select new AttendanceData
                            {
                                Id = att.Id.ToString(),
-                               AppId = att.UserId,
-                               CurrentDate = DateTime.Parse(att.AttendanceDate.ToString()!),
+                               AppId = att.ApplicationUserId,
+                               CurrentDate = att.AttendanceDate,
                                CheckIn = att.CheckIn,
                                CheckOut = att.CheckOut,
                                FullName = usr.FullName!
@@ -166,7 +180,12 @@ namespace QualLMS.Repository
             Attendance data = new Attendance();
             try
             {
-                data = dataContext.Attendance.FirstOrDefault(o => o.UserId == Id && DateOnly.FromDateTime(DateTime.Today) == o.AttendanceDate);
+                DateTime utcNow = DateTime.UtcNow;
+                TimeZoneInfo istTimeZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+                DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, istTimeZone);
+                DateOnly ist = new DateOnly(istNow.Year, istNow.Month, istNow.Day);
+
+                data = dataContext.Attendance.FirstOrDefault(o => o.ApplicationUserId == Id && o.AttendanceDate == ist);
 
                 if (data == null)
                 {
@@ -179,7 +198,7 @@ namespace QualLMS.Repository
             }
             catch (Exception ex)
             {
-                responses = new ResponsesWithData(false, JsonSerializer.Serialize(data)!, ex.Message);
+                responses = new ResponsesWithData(false, null!, ex.Message);
             }
 
             return responses;
@@ -191,7 +210,7 @@ namespace QualLMS.Repository
             List<Attendance> data = new List<Attendance>();
             try
             {
-                data = dataContext.Attendance.Where(o => o.UserId == Id && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
+                data = dataContext.Attendance.Where(o => o.ApplicationUserId == Id && o.AttendanceDate >= StartDate && o.AttendanceDate <= EndDate).ToList();
 
                 if (data == null)
                 {

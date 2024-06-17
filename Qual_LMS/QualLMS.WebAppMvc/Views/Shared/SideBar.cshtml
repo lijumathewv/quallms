@@ -1,14 +1,23 @@
 ﻿@using QualLMS.Domain.Models
 @using QualvationLibrary
+@using System.Text.Json
+@using Microsoft.AspNetCore.Http
 
 @inject CustomLogger logger
 @inject LoginProperties login
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 
 @{
     Roles Role = Roles.None;
 
     if (login != null)
     {
+        if (login.Id == Guid.Empty)
+        {
+            login = JsonSerializer.Deserialize<LoginProperties>(HttpContextAccessor.HttpContext.Session.GetString("LoginDetails"));
+        }
+
         Role = login.Role;
     }
 }

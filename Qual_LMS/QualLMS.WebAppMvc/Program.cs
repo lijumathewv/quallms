@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
 using QualLMS.Domain.Contracts;
 using QualLMS.Repository;
@@ -9,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
+var connection = builder.Configuration.GetConnectionString("DBConnection");
 
 builder.Services.AddDbContext<DataContext>(
-    opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection") ??
-    throw new InvalidOperationException("Unable to find the database")));
+    opt => opt.UseSqlServer(connection, b => b.MigrationsAssembly("QualLMS.WebAppMvc")));
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -37,6 +38,7 @@ builder.Services.AddTransient<ICalendar, CalendarRepository>();
 builder.Services.AddSingleton<CustomLogger>();
 builder.Services.AddSingleton<Client>();
 builder.Services.AddSingleton<LoginProperties>();
+builder.Services.AddHttpContextAccessor();
 
 //Configure Logging
 var configuration = new ConfigurationBuilder()
@@ -45,8 +47,16 @@ var configuration = new ConfigurationBuilder()
 Log.Logger = new LoggerConfiguration()
      .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.File(new CustomFormatter(), "logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Map(le => new DateTime(le.Timestamp.Year, le.Timestamp.Month, le.Timestamp.Day),
+        (day, wt) => wt.File($"./Logs/{day:yyyyMMdd}/Log_.log",
+                             rollingInterval: RollingInterval.Minute,
+                             fileSizeLimitBytes: 10,
+                             rollOnFileSizeLimit: true,
+                             retainedFileCountLimit: 30,
+                             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:t4}] {Message:j}{NewLine}"),
+        sinkMapCountLimit: 1)
     .CreateLogger();
+
 builder.Host.UseSerilog();
 
 var app = builder.Build();
@@ -68,7 +78,7 @@ app.UseAuthorization();
 
 app.UseSession();
 
-app.UseMiddleware<ClientIpEnricherMiddleware>();
+//app.UseMiddleware<ClientIpEnricherMiddleware>();
 app.UseSerilogRequestLogging(); // Add Serilog request logging
 
 app.MapControllerRoute(

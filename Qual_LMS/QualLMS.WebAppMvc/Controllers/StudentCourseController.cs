@@ -5,6 +5,7 @@ using QualLMS.Domain.Contracts;
 using QualLMS.Domain.Models;
 using QualvationLibrary;
 using System.Text.Json;
+using static QualvationLibrary.ServiceResponse;
 
 namespace QualLMS.WebAppMvc.Controllers
 {
@@ -104,6 +105,13 @@ namespace QualLMS.WebAppMvc.Controllers
             }
 
             return RedirectToActionPermanent("Index");
+        }
+
+        [HttpGet("GetFees")]
+        public string GetCourseFees(string CourseId)
+        {
+            var response = course.GetFees(CourseId);
+            return response.returnmodel;
         }
     }
 }
