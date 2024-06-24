@@ -23,3 +23,9 @@
 /Qual_LMS/QualLMS.WebAppMvc/Properties/PublishProfiles
 /Qual_LMS/QualLMS.Repository/bin
 /Qual_LMS/QualLMS.Repository/obj
+/QualLMS.WebAppMvc/bin
+/QualLMS.WebAppMvc/obj
+/QualLMS.WebAppMvc/System.Func`2[System.String,Microsoft.Extensions.Hosting.IHostBuilder]
+/QualLMS.WebAppMvc/System.Func`2[System.String,Microsoft.Extensions.Hosting.IHostBuilder]
+/Qual_LMS/QualvationLibrary/bin
+/Qual_LMS/QualvationLibrary/obj
