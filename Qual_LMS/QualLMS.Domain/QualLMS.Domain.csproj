@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\QualvationLibrary\QualvationLibrary.csproj" />
+    <ProjectReference Include="..\QualvationLibrary\QualvationLibrary.csproj" />
   </ItemGroup>
 
 </Project>

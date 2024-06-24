@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\QualvationLibrary\QualvationLibrary.csproj" />
     <ProjectReference Include="..\QualLMS.Domain\QualLMS.Domain.csproj" />
+    <ProjectReference Include="..\QualvationLibrary\QualvationLibrary.csproj" />
   </ItemGroup>
 
 </Project>
